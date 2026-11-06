@@ -17,9 +17,9 @@ square instead of trying to squeeze past the box, and the behaviour tree's
 
 Detection, per scan, in the arena frame (X = East, Y = North, squares
 axis-aligned; see maps/<map>_arena.yaml):
-  * a hit behind a mapped wall, or within ~10 cm of one, is not an
+  * a hit behind a mapped wall, or within ~15 cm of one, is not an
     obstacle (localisation jitter would otherwise duplicate the walls);
-  * for each of the current square's four neighbours, hits within
+  * for each neighbour the robot could drive into (no wall between), hits within
     boundary_tolerance of that neighbour's near face and inside its width
     are collected; a blocking face needs >= 5 hits at one depth that span
     >= min_width, straddle the square's centre line, and fit a straight
@@ -188,20 +188,20 @@ class CellObstacle:
         self.width, self.height = info.width, info.height
         # Numpy grids so a whole scan is checked at once (the robot's CPU is
         # shared with AMCL and the EKF): wall = occupied or unknown cells;
-        # near_wall = wall grown by two pixels (~10 cm) or the map edge.
+        # near_wall = wall grown by three pixels (~15 cm) or the map edge.
         grid = np.asarray(map_msg.data, dtype=np.int16).reshape(
             self.height, self.width)
         self.wall = (grid < 0) | (grid >= 50)
-        padded = np.pad(self.wall, 2, constant_values=True)
+        padded = np.pad(self.wall, 3, constant_values=True)
         near = np.zeros_like(self.wall)
-        for dy in range(5):
-            for dx in range(5):
+        for dy in range(7):
+            for dx in range(7):
                 near |= padded[dy:dy + self.height, dx:dx + self.width]
         self.near_wall = near
 
     def static_free(self, x, y):
-        """(x, y) in the map frame is free and not within two map pixels
-        (~10 cm) of a known wall or unknown space."""
+        """(x, y) in the map frame is free and not within three map pixels
+        (~15 cm) of a known wall or unknown space."""
         ix = math.floor((x - self.origin[0]) / self.resolution)
         iy = math.floor((y - self.origin[1]) / self.resolution)
         if not (0 <= ix < self.width and 0 <= iy < self.height):
@@ -427,7 +427,7 @@ class CellObstacles(Node):
         if current != self.last_square:
             self.get_logger().info(
                 f'robot in {current}; watching '
-                f'{" ".join(self.arena.neighbours(current))}')
+                f'{" ".join(self.planner.neighbors[current]) or "nothing"}')
             self.last_square = current
         p = tf.transform.translation
         heading = yaw_of(tf.transform.rotation)
@@ -439,8 +439,11 @@ class CellObstacles(Node):
                 angle = heading + msg.angle_min + i * msg.angle_increment
                 hits.append((p.x + distance * math.cos(angle),
                              p.y + distance * math.sin(angle)))
+        # Only neighbours the robot could actually drive into from here
+        # (no wall between): a wall-backed square's "near face" is the wall
+        # itself, which localisation jitter can make look like a new face.
         # Never a goal square: blocking one would make it unreachable.
-        cells = [c for c in self.arena.neighbours(current)
+        cells = [c for c in self.planner.neighbors[current]
                  if c != self.obstacles.blocked and c not in self.goals]
         observed = self.obstacles.detect_cells(hits, laser, cells)
         if observed != self.last_observed:
