@@ -176,7 +176,12 @@ still leaves a route to the current target), the whole square is published on
 1 Hz, so the robot routes around the square instead of squeezing past the
 box. Only one square is blocked at a time; a newer one replaces it.
 
+It is OFF by default until it has been validated on the robot (the raw
+LiDAR marking alone already handles a full-square box). The run's goal
+squares are never blocked, and each new `go_letters` run forgets the
+previous blocked square.
+
 ```bash
+ros2 launch planning_rpp planning.launch.py cell_obstacles:=true   # enable
 ros2 topic echo /blocked_cell          # letter of the confirmed square
-ros2 launch planning_rpp planning.launch.py cell_obstacles:=false   # disable
 ```

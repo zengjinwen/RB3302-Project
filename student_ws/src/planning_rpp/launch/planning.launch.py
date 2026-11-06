@@ -217,9 +217,10 @@ def generate_launch_description():
             description='Closed-loop yaw-rate control from the IMU gyro '
                         '(false = use stiction_boost instead)'),
         DeclareLaunchArgument(
-            'cell_obstacles', default_value='true',
+            'cell_obstacles', default_value='false',
             description='Confirm a blocked course square from the scan and '
-                        'mark the whole square in the costmaps (false = off)'),
+                        'mark the whole square in the costmaps (true = on; '
+                        'off by default until validated on the robot)'),
         DeclareLaunchArgument('set_initial_pose', default_value='false'),
         DeclareLaunchArgument('initial_pose_x', default_value='0.0'),
         DeclareLaunchArgument('initial_pose_y', default_value='0.0'),

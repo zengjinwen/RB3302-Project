@@ -28,7 +28,9 @@ axis-aligned; see maps/<map>_arena.yaml):
     consecutive scans over confirm_time agree, and REPLACES any earlier
     blocked square (the course places at most one obstacle);
   * a candidate that would cut the current target off on the letter grid
-    is ignored (one obstacle must always leave a route).
+    is ignored (one obstacle must always leave a route), and the run's
+    goal squares are never candidates;
+  * a new go_letters run (go_letters/goals) forgets the blocked square.
 
 Watch it:
     ros2 topic echo /blocked_cell
@@ -321,6 +323,7 @@ class CellObstacles(Node):
         self.planner = None
         self.obstacles = None
         self.target = ''
+        self.goals = []
         self.plan_poses = []
         self.last_scan_time = None
         self.reported_unreachable = None
@@ -336,6 +339,8 @@ class CellObstacles(Node):
         self.create_subscription(LaserScan, 'scan', self.on_scan,
                                  qos_profile_sensor_data)
         self.create_subscription(String, 'go_letters/target', self.on_target,
+                                 latched)
+        self.create_subscription(String, 'go_letters/goals', self.on_goals,
                                  latched)
         self.create_subscription(Path, 'plan', self.on_plan, 10)
         self.create_timer(1.0 / self.cloud_rate, self.publish_cloud)
@@ -355,6 +360,19 @@ class CellObstacles(Node):
 
     def on_target(self, msg):
         self.target = msg.data.strip().upper()
+
+    def on_goals(self, msg):
+        """A new run: remember its goal squares and forget any earlier
+        blocked square (the course is reset between runs)."""
+        self.goals = msg.data.upper().split()
+        if self.obstacles is not None and self.obstacles.blocked is not None:
+            self.get_logger().info(
+                f'new run {" ".join(self.goals)}: forgetting blocked square '
+                f'{self.obstacles.blocked}')
+            self.obstacles.blocked = None
+            self.obstacles.candidate = None
+            self.cell_pub.publish(String(data=''))
+        self.reported_unreachable = None
 
     def on_plan(self, msg):
         self.plan_poses = [(p.pose.position.x, p.pose.position.y)
@@ -421,8 +439,9 @@ class CellObstacles(Node):
                 angle = heading + msg.angle_min + i * msg.angle_increment
                 hits.append((p.x + distance * math.cos(angle),
                              p.y + distance * math.sin(angle)))
+        # Never a goal square: blocking one would make it unreachable.
         cells = [c for c in self.arena.neighbours(current)
-                 if c != self.obstacles.blocked]
+                 if c != self.obstacles.blocked and c not in self.goals]
         observed = self.obstacles.detect_cells(hits, laser, cells)
         if observed != self.last_observed:
             self.get_logger().info(

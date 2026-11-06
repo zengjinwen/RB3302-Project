@@ -210,6 +210,10 @@ class GoLetters(Node):
         latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.target_pub = self.create_publisher(String, 'go_letters/target',
                                                 latched)
+        # The run's goal letters: cell_obstacles never blocks these and
+        # forgets any earlier blocked square when a new run starts.
+        self.goals_pub = self.create_publisher(String, 'go_letters/goals',
+                                               latched)
         self.create_subscription(String, 'blocked_cell', self.on_blocked_cell,
                                  latched)
         self.create_subscription(Odometry, 'odom', self.on_odom, 10)
@@ -670,6 +674,7 @@ class GoLetters(Node):
         return False
 
     def run(self, letters, settle=False):
+        self.goals_pub.publish(String(data=' '.join(letters)))
         poses = self.build_poses(letters)
         for letter, p in zip(letters, poses):
             self.get_logger().info(
