@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="rb3302_rover">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size=".20 .20 .06" />
+      </geometry>
+      <material name="body">
+        <color rgba=".25 .35 .65 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="left_front">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" />
+      <geometry>
+        <cylinder radius=".033" length=".02" />
+      </geometry>
+    </visual>
+  </link>
+  <joint name="left_front_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="left_front" />
+    <origin xyz="0.065 0.09 -.042" rpy="0 0 0" />
+  </joint>
+  <link name="left_rear">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" />
+      <geometry>
+        <cylinder radius=".033" length=".02" />
+      </geometry>
+    </visual>
+  </link>
+  <joint name="left_rear_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="left_rear" />
+    <origin xyz="-0.065 0.09 -.042" rpy="0 0 0" />
+  </joint>
+  <link name="right_front">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" />
+      <geometry>
+        <cylinder radius=".033" length=".02" />
+      </geometry>
+    </visual>
+  </link>
+  <joint name="right_front_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="right_front" />
+    <origin xyz="0.065 -0.09 -.042" rpy="0 0 0" />
+  </joint>
+  <link name="right_rear">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" />
+      <geometry>
+        <cylinder radius=".033" length=".02" />
+      </geometry>
+    </visual>
+  </link>
+  <joint name="right_rear_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="right_rear" />
+    <origin xyz="-0.065 -0.09 -.042" rpy="0 0 0" />
+  </joint>
+  <link name="imu_tracking" />
+  <joint name="imu_mount" type="fixed">
+    <parent link="base_link" />
+    <child link="imu_tracking" />
+    <origin xyz="0 0 .05" rpy="0 0 0" />
+  </joint>
+  <link name="gyro_link" />
+  <joint name="imu_axes" type="fixed">
+    <parent link="imu_tracking" />
+    <child link="gyro_link" />
+    <origin xyz="0 0 0" rpy="3.141592653589793 0 0" />
+  </joint>
+  <link name="laser" />
+  <joint name="laser_mount" type="fixed">
+    <parent link="base_link" />
+    <child link="laser" />
+    <origin xyz="-.052 0 .09" rpy="0 0 3.141592653589793" />
+  </joint>
+</robot>

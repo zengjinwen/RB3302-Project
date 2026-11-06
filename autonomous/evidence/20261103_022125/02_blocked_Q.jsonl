@@ -1,0 +1,35 @@
+{"event": "INITIAL ALIGNMENT x=3.315 y=0.290 yaw=89.0 residual=0.006", "time": 1.5}
+{"event": "MISSION START", "time": 1.5}
+{"event": "TARGET X", "time": 2.3}
+{"event": "TARGET X", "time": 2.9}
+{"event": "TARGET X", "time": 3.5}
+{"event": "GOAL X error=0.022m", "time": 4.4}
+{"event": "TARGET P", "time": 7.4}
+{"event": "GOAL P error=0.027m", "time": 30.1}
+{"event": "TARGET G", "time": 33.1}
+{"event": "REPLAN ", "time": 34.575}
+{"event": "TARGET G", "time": 35.1}
+{"event": "REPLAN ", "time": 35.141}
+{"event": "TARGET G", "time": 35.7}
+{"event": "REPLAN ", "time": 37.176}
+{"event": "TARGET G", "time": 37.701}
+{"event": "REPLAN ", "time": 37.764}
+{"event": "TARGET G", "time": 38.3}
+{"event": "REPLAN ", "time": 38.822}
+{"event": "TARGET G", "time": 39.4}
+{"event": "REPLAN ", "time": 40.444}
+{"event": "TARGET G", "time": 41.0}
+{"event": "REPLAN ", "time": 41.53}
+{"event": "TARGET G", "time": 42.1}
+{"event": "REPLAN ", "time": 42.147}
+{"event": "TARGET G", "time": 42.7}
+{"event": "REPLAN ", "time": 44.175}
+{"event": "TARGET G", "time": 44.7}
+{"event": "REPLAN ", "time": 44.754}
+{"event": "TARGET G", "time": 45.3}
+{"event": "REPLAN ", "time": 45.349}
+{"event": "TARGET G", "time": 45.9}
+{"event": "GOAL G error=0.028m", "time": 75.601}
+{"event": "TARGET X", "time": 78.7}
+{"event": "GOAL X error=0.020m", "time": 105.0}
+{"event": "MISSION COMPLETE elapsed=106.50s", "time": 108.0}

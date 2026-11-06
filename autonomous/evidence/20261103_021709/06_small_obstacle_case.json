@@ -1,0 +1,10 @@
+{
+  "name": "06_small_obstacle",
+  "start": "P",
+  "bearing": "E",
+  "goals": "P,L,G,P",
+  "env": {
+    "SIM_OBSTACLE": "Q",
+    "SIM_OBSTACLE_SIZE": ".3"
+  }
+}

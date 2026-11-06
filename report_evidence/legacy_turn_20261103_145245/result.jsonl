@@ -1,0 +1,15 @@
+{"event": "MISSION START", "time": 1.152}
+{"event": "TARGET X", "time": 1.306}
+{"event": "GOAL X", "time": 1.306}
+{"event": "TARGET P", "time": 4.355}
+{"event": "\u786e\u8ba4\u7a33\u5b9a\u5927\u969c\u788d\uff1a\u683c\u5b50Q\u6574\u683c60\u00d760cm\u5360\u7528\uff1b\u5360\u7528\u5269\u4f59\u8def\u7ebf\uff0c\u91cd\u65b0A*\uff1b\u53ea\u4fdd\u7559\u4e00\u4e2a\u3002", "time": 6.416}
+{"event": "TARGET P", "time": 6.418}
+{"event": "\u786e\u8ba4\u7a33\u5b9a\u5927\u969c\u788d\uff1a\u683c\u5b50T\u6574\u683c60\u00d760cm\u5360\u7528\uff1b\u4e0d\u5728\u5269\u4f59\u8def\u7ebf\uff0c\u7ee7\u7eed\u884c\u9a76\uff1b\u53ea\u4fdd\u7559\u4e00\u4e2a\u3002", "time": 57.527}
+{"event": "GOAL P", "time": 84.925}
+{"event": "TARGET G", "time": 87.925}
+{"event": "GOAL G", "time": 155.84}
+{"event": "TARGET X", "time": 158.851}
+{"event": "\u786e\u8ba4\u7a33\u5b9a\u5927\u969c\u788d\uff1a\u683c\u5b50G\u6574\u683c60\u00d760cm\u5360\u7528\uff1b\u4e0d\u5728\u5269\u4f59\u8def\u7ebf\uff0c\u7ee7\u7eed\u884c\u9a76\uff1b\u53ea\u4fdd\u7559\u4e00\u4e2a\u3002", "time": 181.914}
+{"event": "\u786e\u8ba4\u7a33\u5b9a\u5927\u969c\u788d\uff1a\u683c\u5b50Q\u6574\u683c60\u00d760cm\u5360\u7528\uff1b\u4e0d\u5728\u5269\u4f59\u8def\u7ebf\uff0c\u7ee7\u7eed\u884c\u9a76\uff1b\u53ea\u4fdd\u7559\u4e00\u4e2a\u3002", "time": 226.918}
+{"event": "GOAL X", "time": 237.92}
+{"event": "MISSION COMPLETE", "time": 240.963}

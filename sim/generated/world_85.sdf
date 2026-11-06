@@ -1,0 +1,930 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+  <world name="rb3302">
+    <physics name="physics" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <gravity>0 0 -9.81</gravity>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu" />
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <light name="sun" type="directional">
+      <pose>0 0 8 0 0 0</pose>
+      <diffuse>.8 .8 .8 1</diffuse>
+      <direction>-.3 -.4 -1</direction>
+    </light>
+    <model name="floor">
+      <static>true</static>
+      <link name="floor">
+        <collision name="floor_collision">
+          <pose>2 1 -.05 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>10 8 .1</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="floor_visual">
+          <pose>2 1 -.05 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>10 8 .1</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.75 .75 .75 1</ambient>
+            <diffuse>.75 .75 .75 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="aligned_map_walls">
+      <static>true</static>
+      <pose>-0.7250000000000003 -0.8750000000000002 0 0 0 0.0</pose>
+      <link name="walls">
+        <collision name="wall_0_collision">
+          <pose>2.5250000000000004 0.875 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>3.75 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_0_visual">
+          <pose>2.5250000000000004 0.875 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>3.75 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_1_collision">
+          <pose>1.6 1.475 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_1_visual">
+          <pose>1.6 1.475 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_2_collision">
+          <pose>3.1500000000000004 1.475 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.3 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_2_visual">
+          <pose>3.1500000000000004 1.475 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.3 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_3_collision">
+          <pose>1.925 1.7750000000000001 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.55 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_3_visual">
+          <pose>1.925 1.7750000000000001 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.55 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_4_collision">
+          <pose>1.6 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_4_visual">
+          <pose>1.6 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_5_collision">
+          <pose>2.825 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.65 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_5_visual">
+          <pose>2.825 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.65 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_6_collision">
+          <pose>1.2750000000000001 2.375 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.55 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_6_visual">
+          <pose>1.2750000000000001 2.375 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.55 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_7_collision">
+          <pose>3.125 2.375 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.55 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_7_visual">
+          <pose>3.125 2.375 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.55 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_8_collision">
+          <pose>3.7750000000000004 2.35 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.6000000000000001 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_8_visual">
+          <pose>3.7750000000000004 2.35 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.6000000000000001 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_9_collision">
+          <pose>1.6 2.6750000000000003 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_9_visual">
+          <pose>1.6 2.6750000000000003 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_10_collision">
+          <pose>2.5250000000000004 2.4000000000000004 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.6000000000000001 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_10_visual">
+          <pose>2.5250000000000004 2.4000000000000004 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 0.6000000000000001 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_11_collision">
+          <pose>3.45 2.6750000000000003 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_11_visual">
+          <pose>3.45 2.6750000000000003 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.7000000000000001 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_12_collision">
+          <pose>0.675 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 2.35 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_12_visual">
+          <pose>0.675 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 2.35 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_13_collision">
+          <pose>4.375 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 2.35 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_13_visual">
+          <pose>4.375 2.075 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.05 2.35 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+        <collision name="wall_14_collision">
+          <pose>2.5250000000000004 3.2750000000000004 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>3.75 0.05 .5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="wall_14_visual">
+          <pose>2.5250000000000004 3.2750000000000004 .25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>3.75 0.05 .5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.18 .18 .18 1</ambient>
+            <diffuse>.18 .18 .18 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="grid_centres">
+      <static>true</static>
+      <link name="markers">
+        <visual name="cell_A_visual">
+          <pose>0.3 2.1 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_B_visual">
+          <pose>0.9 2.1 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_C_visual">
+          <pose>1.5 2.1 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_D_visual">
+          <pose>2.1 2.1 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_E_visual">
+          <pose>2.7 2.1 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_F_visual">
+          <pose>3.3 2.1 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_G_visual">
+          <pose>0.3 1.5 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_H_visual">
+          <pose>0.9 1.5 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_I_visual">
+          <pose>1.5 1.5 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_J_visual">
+          <pose>2.1 1.5 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_K_visual">
+          <pose>2.7 1.5 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_L_visual">
+          <pose>3.3 1.5 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_M_visual">
+          <pose>0.3 0.9 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_N_visual">
+          <pose>0.9 0.9 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_O_visual">
+          <pose>1.5 0.9 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_P_visual">
+          <pose>2.1 0.9 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_Q_visual">
+          <pose>2.7 0.9 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_R_visual">
+          <pose>3.3 0.9 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_S_visual">
+          <pose>0.3 0.3 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_T_visual">
+          <pose>0.9 0.3 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_U_visual">
+          <pose>1.5 0.3 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_V_visual">
+          <pose>2.1 0.3 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_W_visual">
+          <pose>2.7 0.3 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+        <visual name="cell_X_visual">
+          <pose>3.3 0.3 .003 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.025 .025 .004</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.1 .65 .15 1</ambient>
+            <diffuse>.1 .65 .15 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="obstacle_Q">
+      <static>true</static>
+      <link name="box">
+        <collision name="box_collision">
+          <pose>2.7 0.9 .15 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 .3</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="box_visual">
+          <pose>2.7 0.9 .15 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.3 0.3 .3</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.8 .2 .1 1</ambient>
+            <diffuse>.8 .2 .1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="rover">
+      <pose>2.1 0.9 .075 0 0 0.0</pose>
+      <self_collide>false</self_collide>
+      <link name="base_link">
+        <inertial>
+          <mass>5.0</mass>
+          <inertia>
+            <ixx>0.018</ixx>
+            <iyy>0.018</iyy>
+            <izz>0.033</izz>
+          </inertia>
+        </inertial>
+        <collision name="body_collision">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.20 .20 .06</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="body_visual">
+          <pose>0 0 0 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>.20 .20 .06</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>.25 .35 .65 1</ambient>
+            <diffuse>.25 .35 .65 1</diffuse>
+          </material>
+        </visual>
+        <sensor name="imu" type="imu">
+          <pose>0 0 .05 3.141592653589793 0 0</pose>
+          <always_on>true</always_on>
+          <update_rate>200</update_rate>
+          <topic>/sim/imu</topic>
+        </sensor>
+        <sensor name="lidar" type="gpu_lidar">
+          <pose>-.052 0 .09 0 0 3.141592653589793</pose>
+          <always_on>true</always_on>
+          <update_rate>10</update_rate>
+          <topic>/sim/scan</topic>
+          <lidar>
+            <scan>
+              <horizontal>
+                <samples>720</samples>
+                <resolution>1</resolution>
+                <min_angle>-3.141592653589793</min_angle>
+                <max_angle>3.141592653589793</max_angle>
+              </horizontal>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>12.0</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>.005</stddev>
+            </noise>
+          </lidar>
+        </sensor>
+      </link>
+      <link name="left_front">
+        <pose>0.065 0.09 -.042 1.5707963267948966 0 0</pose>
+        <inertial>
+          <mass>0.15</mass>
+          <inertia>
+            <ixx>4.5e-05</ixx>
+            <iyy>4.5e-05</iyy>
+            <izz>8.2e-05</izz>
+          </inertia>
+        </inertial>
+        <collision name="left_front_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>0.1</mu2>
+                <fdir1>1 0 0</fdir1>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="left_front_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="left_front_joint" type="revolute">
+        <parent>base_link</parent>
+        <child>left_front</child>
+        <axis>
+          <xyz>0 0 -1</xyz>
+        </axis>
+      </joint>
+      <link name="left_rear">
+        <pose>-0.065 0.09 -.042 1.5707963267948966 0 0</pose>
+        <inertial>
+          <mass>0.15</mass>
+          <inertia>
+            <ixx>4.5e-05</ixx>
+            <iyy>4.5e-05</iyy>
+            <izz>8.2e-05</izz>
+          </inertia>
+        </inertial>
+        <collision name="left_rear_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>0.1</mu2>
+                <fdir1>1 0 0</fdir1>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="left_rear_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="left_rear_joint" type="revolute">
+        <parent>base_link</parent>
+        <child>left_rear</child>
+        <axis>
+          <xyz>0 0 -1</xyz>
+        </axis>
+      </joint>
+      <link name="right_front">
+        <pose>0.065 -0.09 -.042 1.5707963267948966 0 0</pose>
+        <inertial>
+          <mass>0.15</mass>
+          <inertia>
+            <ixx>4.5e-05</ixx>
+            <iyy>4.5e-05</iyy>
+            <izz>8.2e-05</izz>
+          </inertia>
+        </inertial>
+        <collision name="right_front_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>0.1</mu2>
+                <fdir1>1 0 0</fdir1>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="right_front_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="right_front_joint" type="revolute">
+        <parent>base_link</parent>
+        <child>right_front</child>
+        <axis>
+          <xyz>0 0 -1</xyz>
+        </axis>
+      </joint>
+      <link name="right_rear">
+        <pose>-0.065 -0.09 -.042 1.5707963267948966 0 0</pose>
+        <inertial>
+          <mass>0.15</mass>
+          <inertia>
+            <ixx>4.5e-05</ixx>
+            <iyy>4.5e-05</iyy>
+            <izz>8.2e-05</izz>
+          </inertia>
+        </inertial>
+        <collision name="right_rear_collision">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1.0</mu>
+                <mu2>0.1</mu2>
+                <fdir1>1 0 0</fdir1>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="right_rear_visual">
+          <geometry>
+            <cylinder>
+              <radius>0.033</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="right_rear_joint" type="revolute">
+        <parent>base_link</parent>
+        <child>right_rear</child>
+        <axis>
+          <xyz>0 0 -1</xyz>
+        </axis>
+      </joint>
+      <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+        <left_joint>left_front_joint</left_joint>
+        <left_joint>left_rear_joint</left_joint>
+        <right_joint>right_front_joint</right_joint>
+        <right_joint>right_rear_joint</right_joint>
+        <wheel_separation>0.18</wheel_separation>
+        <wheel_radius>0.033</wheel_radius>
+        <topic>/sim/cmd_vel</topic>
+        <odom_topic>/sim/wheel_odom</odom_topic>
+        <tf_topic>/sim/wheel_tf_unused</tf_topic>
+        <frame_id>odom</frame_id>
+        <child_frame_id>base_link</child_frame_id>
+        <odom_publish_frequency>100</odom_publish_frequency>
+      </plugin>
+      <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+        <odom_frame>map</odom_frame>
+        <robot_base_frame>base_link</robot_base_frame>
+        <odom_topic>/sim/ground_truth</odom_topic>
+        <odom_publish_frequency>30</odom_publish_frequency>
+        <dimensions>3</dimensions>
+      </plugin>
+    </model>
+  </world>
+</sdf>

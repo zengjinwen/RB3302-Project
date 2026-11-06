@@ -1,0 +1,7 @@
+rotation_radians: -1.6683562763202553
+translation:
+- 0.34718840752927527
+- 1.7930649679794628
+max_grid_fit_error_m: 0.04979158281139132
+description: new_xy = rotation(old_xy) + translation; rigid rotation, 0.05m resolution
+  retained

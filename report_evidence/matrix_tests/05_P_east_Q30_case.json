@@ -1,0 +1,10 @@
+{
+  "name": "05_P_east_Q30",
+  "start": "P",
+  "bearing": "E",
+  "goals": "P,L,G,P",
+  "env": {
+    "SIM_OBSTACLE": "Q",
+    "SIM_OBSTACLE_SIZE": ".30"
+  }
+}

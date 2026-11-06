@@ -1,0 +1,178 @@
+{
+  "completed": false,
+  "elapsed_sim_seconds": null,
+  "goals": [
+    {
+      "event": "GOAL X",
+      "time": 1.843,
+      "truth": [
+        1.8359999999999999,
+        3.3000007076152666,
+        0.3,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 7.07615266826167e-07,
+      "centre_under_body": true
+    }
+  ],
+  "events": [
+    {
+      "event": "MISSION START",
+      "time": 1.7429999999999999,
+      "truth": [
+        1.734,
+        3.3000007076152666,
+        0.3,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "TARGET X",
+      "time": 1.842,
+      "truth": [
+        1.8359999999999999,
+        3.3000007076152666,
+        0.3,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 1.843,
+      "truth": [
+        1.8359999999999999,
+        3.3000007076152666,
+        0.3,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 7.07615266826167e-07,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET O",
+      "time": 4.867,
+      "truth": [
+        4.862,
+        3.3000007076152666,
+        0.3,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "FAILED \u4efb\u52a1\u505c\u6b62\uff1a\u4e8c\u6b21\u5bf9\u51c6\u540e\u5b9a\u4f4d\u671d\u5411\u4ecd\u4e0d\u7b26\uff0c\u5df2\u505c\u8f66\uff0c\u4e0d\u7ee7\u7eed\u8f6c\u5708\u3002",
+      "time": 19.161,
+      "truth": [
+        19.142,
+        3.3087895118627166,
+        1.042379166701224,
+        3.078832529077796,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "holds": [
+    {
+      "goal": "X",
+      "duration": 3.024,
+      "max_translation": 0.0
+    }
+  ],
+  "collision_frames": 0,
+  "obstacle_seen_in_costmap": false,
+  "plans": 0,
+  "amcl_position_rmse": 0.02592621892793076,
+  "amcl_yaw_rmse_deg": 1.4892638405879763,
+  "topic_audit": {
+    "/sim/ground_truth": {
+      "publishers": [
+        "ros_gz_bridge"
+      ],
+      "subscribers": [
+        "autonomous_evidence"
+      ]
+    },
+    "/scan": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "amcl",
+        "rb3302_mission"
+      ]
+    },
+    "/odom/raw": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "ekf_filter_node",
+        "rb3302_mission"
+      ]
+    },
+    "/odom": {
+      "publishers": [
+        "ekf_filter_node"
+      ],
+      "subscribers": [
+        "rb3302_mission"
+      ]
+    },
+    "/amcl_pose": {
+      "publishers": [
+        "amcl"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "rb3302_mission"
+      ]
+    },
+    "/cmd_vel": {
+      "publishers": [
+        "rb3302_mission"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "sim_hardware"
+      ]
+    },
+    "/cmd_vel_nav": {
+      "publishers": [],
+      "subscribers": []
+    }
+  },
+  "passed": false,
+  "turns": [
+    {
+      "start": 13.58,
+      "requested_degrees": 89.4,
+      "end": 18.076,
+      "true_degrees": 88.57307173323117,
+      "error_degrees": -0.8269282667688317
+    },
+    {
+      "start": 18.429,
+      "requested_degrees": -2.1,
+      "end": 18.758,
+      "true_degrees": -1.323189225574819,
+      "error_degrees": 0.776810774425181
+    }
+  ]
+}

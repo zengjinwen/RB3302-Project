@@ -1,0 +1,10 @@
+{
+  "name": "06_X_north_Q40_repeat",
+  "start": "X",
+  "bearing": "N",
+  "goals": "X,P,G,X",
+  "env": {
+    "SIM_OBSTACLE": "Q",
+    "SIM_OBSTACLE_SIZE": ".40"
+  }
+}

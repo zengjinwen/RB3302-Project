@@ -1,0 +1,10 @@
+{"event": "MISSION START", "time": 2.1}
+{"event": "TARGET X", "time": 3.001}
+{"event": "GOAL X error=0.014m", "time": 3.9}
+{"event": "TARGET P", "time": 6.9}
+{"event": "GOAL P error=0.023m", "time": 31.901}
+{"event": "TARGET G", "time": 34.901}
+{"event": "GOAL G error=0.030m", "time": 70.5}
+{"event": "TARGET X", "time": 73.5}
+{"event": "GOAL X error=0.022m", "time": 107.4}
+{"event": "MISSION COMPLETE elapsed=108.30s", "time": 110.401}

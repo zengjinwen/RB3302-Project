@@ -1,0 +1,327 @@
+[
+  {
+    "completed": true,
+    "elapsed_sim_seconds": 109.1,
+    "goals": [
+      {
+        "event": "GOAL X error=0.028m",
+        "time": 3.7,
+        "truth": [
+          3.706,
+          3.3000007076152666,
+          0.3,
+          1.5707963267949023,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 7.07615266826167e-07,
+        "centre_under_body": true
+      },
+      {
+        "event": "GOAL P error=0.034m",
+        "time": 31.601,
+        "truth": [
+          31.586,
+          2.0815359813532694,
+          0.9416973773855465,
+          -0.04442257075043965,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 0.04560253573453452,
+        "centre_under_body": true
+      },
+      {
+        "event": "GOAL G error=0.040m",
+        "time": 71.6,
+        "truth": [
+          71.604,
+          0.2661941574003298,
+          1.5568025147844324,
+          0.32013539797323,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 0.06610113977617436,
+        "centre_under_body": true
+      },
+      {
+        "event": "GOAL X error=0.018m",
+        "time": 107.402,
+        "truth": [
+          107.406,
+          3.314937650596011,
+          0.32564915400378486,
+          0.5049400313235881,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 0.029681854834871464,
+        "centre_under_body": true
+      }
+    ],
+    "events": [
+      {
+        "event": "MISSION START",
+        "time": 1.4,
+        "truth": [
+          1.3940000000000001,
+          3.3000007076152666,
+          0.3,
+          1.5707963267949023,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "event": "TARGET X",
+        "time": 2.2,
+        "truth": [
+          2.21,
+          3.3000007076152666,
+          0.3,
+          1.5707963267949023,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "event": "TARGET X",
+        "time": 2.8,
+        "truth": [
+          2.7880000000000003,
+          3.3000007076152666,
+          0.3,
+          1.5707963267949023,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "event": "GOAL X error=0.028m",
+        "time": 3.7,
+        "truth": [
+          3.706,
+          3.3000007076152666,
+          0.3,
+          1.5707963267949023,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 7.07615266826167e-07,
+        "centre_under_body": true
+      },
+      {
+        "event": "TARGET P",
+        "time": 6.7,
+        "truth": [
+          6.698,
+          3.3000007076152666,
+          0.3,
+          1.5707963267949023,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "event": "GOAL P error=0.034m",
+        "time": 31.601,
+        "truth": [
+          31.586,
+          2.0815359813532694,
+          0.9416973773855465,
+          -0.04442257075043965,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 0.04560253573453452,
+        "centre_under_body": true
+      },
+      {
+        "event": "TARGET G",
+        "time": 34.7,
+        "truth": [
+          34.714,
+          2.0815359813532694,
+          0.9416973773855465,
+          -0.04442257075043965,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "event": "GOAL G error=0.040m",
+        "time": 71.6,
+        "truth": [
+          71.604,
+          0.2661941574003298,
+          1.5568025147844324,
+          0.32013539797323,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 0.06610113977617436,
+        "centre_under_body": true
+      },
+      {
+        "event": "TARGET X",
+        "time": 74.6,
+        "truth": [
+          74.596,
+          0.2661941574003298,
+          1.5568025147844324,
+          0.32013539797323,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "event": "GOAL X error=0.018m",
+        "time": 107.402,
+        "truth": [
+          107.406,
+          3.314937650596011,
+          0.32564915400378486,
+          0.5049400313235881,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "true_goal_error": 0.029681854834871464,
+        "centre_under_body": true
+      },
+      {
+        "event": "MISSION COMPLETE elapsed=109.10s",
+        "time": 110.5,
+        "truth": [
+          110.5,
+          3.314937650596011,
+          0.32564915400378486,
+          0.5049400313235881,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "holds": [
+      {
+        "goal": "X",
+        "duration": 3.0,
+        "max_translation": 0.0
+      },
+      {
+        "goal": "P",
+        "duration": 3.0990000000000038,
+        "max_translation": 0.0
+      },
+      {
+        "goal": "G",
+        "duration": 3.0,
+        "max_translation": 0.0
+      },
+      {
+        "goal": "X",
+        "duration": 3.097999999999999,
+        "max_translation": 0.0
+      }
+    ],
+    "collision_frames": 0,
+    "obstacle_seen_in_costmap": true,
+    "plans": 192,
+    "amcl_position_rmse": 0.046432713602317356,
+    "amcl_yaw_rmse_deg": 1.1213710173014517,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "autonomous_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "global_costmap",
+          "local_costmap",
+          "obstacle_scan",
+          "motion_gate"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "controller_server",
+          "bt_navigator",
+          "motion_gate",
+          "autonomous_mission"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "autonomous_evidence",
+          "motion_gate",
+          "autonomous_mission"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "motion_gate"
+        ],
+        "subscribers": [
+          "autonomous_evidence",
+          "sim_hardware"
+        ]
+      },
+      "/cmd_vel_nav": {
+        "publishers": [
+          "controller_server"
+        ],
+        "subscribers": [
+          "velocity_smoother"
+        ]
+      }
+    },
+    "passed": true,
+    "case": {
+      "name": "02_blocked_Q",
+      "start": "X",
+      "bearing": "N",
+      "goals": "X,P,G,X",
+      "env": {
+        "SIM_OBSTACLE": "Q",
+        "SIM_OBSTACLE_SIZE": ".4"
+      }
+    }
+  }
+]

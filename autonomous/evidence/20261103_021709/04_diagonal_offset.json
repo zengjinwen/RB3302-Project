@@ -1,0 +1,18 @@
+{
+  "passed": false,
+  "completed": false,
+  "reason": "No evaluation result",
+  "case": {
+    "name": "04_diagonal_offset",
+    "start": "X",
+    "bearing": "NW",
+    "goals": "O,Q,P,X",
+    "env": {
+      "SIM_SPAWN_DX": ".10",
+      "SIM_SPAWN_DY": "-.10",
+      "SIM_SPAWN_YAW": "35",
+      "SIM_LIDAR_NOISE": ".02",
+      "SIM_GYRO_NOISE": ".02"
+    }
+  }
+}
