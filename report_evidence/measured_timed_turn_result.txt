@@ -1,6 +1,0 @@
-+90.0deg calibrated timed turn passed; no odom API
--90.0deg calibrated timed turn passed; no odom API
-+85.0deg calibrated timed turn passed; no odom API
-No measured rotation: stops instead of spinning
-Main-turn overshoot: one reverse correction and final AMCL verification passed
-Synthetic logic tests, not physical accuracy validation.

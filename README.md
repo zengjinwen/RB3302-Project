@@ -1,0 +1,182 @@
+# RB3302 Final Project 
+
+This repository contains two ROS 2 workspaces for the RB3302 final project:
+
+- `robot_ws` contains the robot-side nodes used by the lab setup to activate the 2D Lidar, IMU, robot model, and transform definitions.
+- `student_ws` contains the mapping and planning packages used in this project.
+
+Both workspaces are located inside `~/rb3302_final_proj_code`.
+
+Packages in this workspace:
+
+```text
+mapping_cartographer  - Cartographer algorithm
+planning_astar        - Planning with A*
+planning_rpp          - Planning with Regulated Pure Pursuit (RPP)
+```
+
+## Initialise the Robot
+
+Run this from `robot_ws` before mapping or planning.
+Keep this terminal running.
+
+Build once:
+
+```bash
+cd ~/rb3302_final_proj_code/robot_ws
+colcon build --symlink-install
+source ~/rb3302_final_proj_code/robot_ws/install/setup.bash
+```
+
+Start the robot-side nodes:
+
+```bash
+source ~/rb3302_final_proj_code/robot_ws/install/setup.bash
+ros2 launch robot_init robot.launch.py
+```
+
+Manual driving:
+
+```bash
+source ~/rb3302_final_proj_code/robot_ws/install/setup.bash
+ros2 run waverover_base keyboard_teleop
+```
+
+On your own computer:
+
+```bash
+rviz2
+```
+
+![RViz](images/laser_rviz2.png)
+
+## Build
+
+```bash
+cd ~/rb3302_final_proj_code/student_ws
+source /opt/ros/jazzy/setup.bash
+colcon build --symlink-install
+source install/setup.bash
+```
+
+## Mapping with Cartographer
+
+Config file:
+
+```text
+src/mapping_cartographer/config/cartographer.lua
+```
+
+Start mapping:
+
+```bash
+ros2 launch mapping_cartographer mapping.launch.py
+```
+
+Drive the robot around while Cartographer creates the map.
+
+## Save the Map
+
+Keep mapping running, then open another terminal:
+
+```bash 
+
+mkdir -p ~/rb3302_final_proj_code/student_ws/maps
+
+ros2 run nav2_map_server map_saver_cli -f  ~/rb3302_final_proj_code/student_ws/maps/rb3302_map
+
+```
+
+Save maps here:
+
+```text
+~/rb3302_final_proj_code/student_ws/maps/rb3302_map.yaml
+~/rb3302_final_proj_code/student_ws/maps/rb3302_map.pgm
+```
+
+## Before Using A* or Regulated Pure Pursuit (RPP)
+
+Both planning options use Adaptive Monte Carlo Localisation (AMCL) to localise the robot on the saved map.
+After starting either planning package, set the robot's starting pose in RViz with `2D Pose Estimate`, then send a goal.
+
+![2D Pose Estimate button](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZRV3ugXlOB_iR_gDu-X5ThKJhgR311uwVFu6B63culC722Dts3-WeHmM&s=10)
+
+## Planning with A*
+
+Config file:
+
+```text
+src/planning_astar/config/nav2_params.yaml
+```
+
+Start planning:
+
+```bash
+ros2 launch planning_astar planning.launch.py
+```
+
+## Planning with Regulated Pure Pursuit (RPP)
+
+Config file:
+
+```text
+src/planning_rpp/config/nav2_params.yaml
+```
+
+Start planning:
+
+```bash
+ros2 launch planning_rpp planning.launch.py
+```
+
+### Course waypoints
+
+`go_letters` drives to the square targets in
+`student_ws/maps/rb3302_map_arena.yaml`. They were computed once from
+`rb3302_map`: the course grid (origin, angle and square size) was fitted to the
+map's walls, and each target was centred between its walls where a square has
+walls on both sides. The file's header explains the fit. If the map is rebuilt
+or edited, the targets must be refitted.
+
+### Run the course
+
+```bash
+ros2 run planning_rpp go_letters --start S0 B0 S1 S2 S3 S4
+```
+
+For example `go_letters --start S NE A H O X`: start on square S facing NE, then
+visit A, H, O and X, pausing at each. Bearings are `N NE E SE S SW W NW`, with
+N towards row A–F. The start pose replaces RViz's `2D Pose Estimate`.
+
+## Graded runs (planning_rpp)
+
+On the robot, with `robot.launch.py` already running:
+
+```bash
+ros2 launch planning_rpp planning.launch.py
+```
+
+This starts localisation, Nav2 (Smac 2D + Regulated Pure Pursuit), the
+velocity chain (wall_repulsion, turn_rate_controller) and `cell_obstacles`.
+Then, in another terminal, set the start square and bearing and drive the
+four squares:
+
+```bash
+ros2 run planning_rpp go_letters --start S NE A H O X
+```
+
+### Obstacle squares (`cell_obstacles`)
+
+The costmaps always mark the raw LiDAR, so a box is avoided locally. On top
+of that, `cell_obstacles` applies the course rule that an obstacle fills one
+whole square: when a broad, axis-aligned face is seen across the near side of
+a neighbouring square for several scans in a row (and blocking that square
+still leaves a route to the current target), the whole square is published on
+`/blocked_cells` and both costmaps mark it. Nav2's behaviour tree replans at
+1 Hz, so the robot routes around the square instead of squeezing past the
+box. Only one square is blocked at a time; a newer one replaces it.
+
+```bash
+ros2 topic echo /blocked_cell          # letter of the confirmed square
+ros2 launch planning_rpp planning.launch.py cell_obstacles:=false   # disable
+```

@@ -1,4 +1,0 @@
-normal: elapsed=1.35s; final command=0,0; finished
-frozen: elapsed=5.05s; final command=0,0; 原地转弯超过5秒，已停车：目标+90.0度，odom累计+0.0度。
-opposite: elapsed=5.05s; final command=0,0; 原地转弯超过5秒，已停车：目标+90.0度，odom累计-289.3度。
-Synthetic feedback, not proof of real sensor fault. Fresh odom with frozen/reversed yaw keeps requesting rotation until deadline. Real logs lacked cumulative yaw, now added every0.5sec.

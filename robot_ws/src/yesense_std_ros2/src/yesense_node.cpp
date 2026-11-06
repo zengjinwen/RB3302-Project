@@ -257,8 +257,7 @@ class YESENSE_Publisher : public rclcpp::Node
 		}
 		else if(serial_drv_linux == driver_type)
 		{
-			const ssize_t count = read(fd, r_buffer, UART_RX_BUF_LEN);
-			bytes_read_r_buffer = count > 0 ? static_cast<size_t>(count) : 0u;
+			bytes_read_r_buffer = read(fd, r_buffer, UART_RX_BUF_LEN);
 		}	
 
 		int ret = decoder.data_proc(r_buffer, (unsigned int)bytes_read_r_buffer, &yis_out);

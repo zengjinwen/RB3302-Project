@@ -1,5 +1,0 @@
-<library path="rb3302_motion">
-  <class type="nav2_amcl::RB3302DifferentialMotionModel" base_class_type="nav2_amcl::MotionModel">
-    <description>Signed odometry displacement with mean-one translation noise, version 2.</description>
-  </class>
-</library>

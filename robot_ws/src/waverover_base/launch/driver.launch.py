@@ -23,9 +23,6 @@ def generate_launch_description():
                 "load_calib_on_start": True,
                 "rezero_imu_on_start": False,
 
-                "yaw_units": "radians",  # Explicit assumption; confirm against installed firmware.
-                "linear_velocity_stddev": 0.03,
-                "angular_velocity_stddev": 0.10,
                 "feedback_rate": 100.0,
                 "feedback_interval_ms": 10,
 
@@ -40,8 +37,8 @@ def generate_launch_description():
                 # 3-cell 18650 pack.
                 "battery_full_voltage": 12.6,
                 "battery_empty_voltage": 9.0,
-                "low_battery_percentage": 20.0,
-                "very_low_battery_percentage": 10.0,
+                "low_battery_percent": 20.0,
+                "very_low_battery_percent": 10.0,
                 "very_low_flash_rate": 2.0,
             }],
         )

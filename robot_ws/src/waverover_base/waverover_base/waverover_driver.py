@@ -69,7 +69,6 @@ class SerialTransport:
         self.logger = logger
         self.ser = None
         self.io_lock = threading.RLock()
-        self.rx_buffer = bytearray()
 
     def open(self) -> bool:
         try:
@@ -124,21 +123,17 @@ class SerialTransport:
             return {}
         with self.io_lock:
             try:
-                # 只读已经收到的字节，不在持锁时等下一行或剩余半包。
-                available = self.ser.in_waiting
-                if available:
-                    self.rx_buffer.extend(self.ser.read(available))
-                if b'\n' not in self.rx_buffer:
+                if self.ser.in_waiting <= 0:
                     return {}
-                raw, _, remaining = self.rx_buffer.partition(b'\n')
-                self.rx_buffer = bytearray(remaining)
+                raw = self.ser.readline().decode("utf-8", errors="ignore").strip()
             except serial.SerialException:
                 return {}
-        try:
-            data = json.loads(raw)
-            return data if isinstance(data, dict) else {}
-        except (ValueError, UnicodeError):
-            return {}
+        if raw.startswith("{"):
+            try:
+                return json.loads(raw)
+            except json.JSONDecodeError:
+                return {}
+        return {}
 
 
 class WaveRoverDriver(Node):
@@ -150,11 +145,7 @@ class WaveRoverDriver(Node):
         self.declare_parameter("serial_timeout", 1.0)
         self.declare_parameter("max_linear_vel", 1.0)
         self.declare_parameter("max_angular_vel", 2.0)
-        self.declare_parameter("turn_wheel_gain", 0.50)
-        self.declare_parameter("turn_wheel_limit", 0.25)
-        self.declare_parameter("turn_wheel_min", 0.12)
         self.declare_parameter("cmd_vel_timeout", 0.8)
-        self.declare_parameter("feedback_timeout", 1.0)
         self.declare_parameter("heartbeat_rate", 20.0)
         self.declare_parameter("load_calib_on_start", True)
         self.declare_parameter("rezero_imu_on_start", False)
@@ -165,10 +156,6 @@ class WaveRoverDriver(Node):
         self.declare_parameter("odom_frame", "odom")
         self.declare_parameter("base_frame", "base_link")
 
-        # Explicit protocol units; raw yaw is not fused by the current EKF.
-        self.declare_parameter("yaw_units", "radians")
-        self.declare_parameter("linear_velocity_stddev", 0.03)
-        self.declare_parameter("angular_velocity_stddev", 0.10)
         self.declare_parameter("feedback_rate", 100.0)
         self.declare_parameter("feedback_interval_ms", 10)
         self.declare_parameter("battery_rate", 1.0)
@@ -188,16 +175,7 @@ class WaveRoverDriver(Node):
         self.serial_timeout = self.get_parameter("serial_timeout").value
         self.max_linear_vel = self.get_parameter("max_linear_vel").value
         self.max_angular_vel = self.get_parameter("max_angular_vel").value
-        self.turn_wheel_gain = self.get_parameter("turn_wheel_gain").value
-        self.turn_wheel_limit = self.get_parameter("turn_wheel_limit").value
-        self.turn_wheel_min = self.get_parameter("turn_wheel_min").value
-        if not (math.isfinite(self.turn_wheel_min) and 0 < self.turn_wheel_min <= self.turn_wheel_limit
-                and math.isfinite(self.turn_wheel_gain) and self.turn_wheel_gain > 0
-                and math.isfinite(self.turn_wheel_limit) and 0 < self.turn_wheel_limit <= .5):
-            raise ValueError("Invalid direct wheel turn gain/limit")
-        self.direct_turn_active = False
         self.cmd_vel_timeout = self.get_parameter("cmd_vel_timeout").value
-        self.feedback_timeout = self.get_parameter("feedback_timeout").value
         self.heartbeat_rate = self.get_parameter("heartbeat_rate").value
         self.load_calib_on_start = self.get_parameter("load_calib_on_start").value
         self.rezero_imu_on_start = self.get_parameter("rezero_imu_on_start").value
@@ -208,18 +186,6 @@ class WaveRoverDriver(Node):
         self.odom_frame = self.get_parameter("odom_frame").value
         self.base_frame = self.get_parameter("base_frame").value
 
-        self.yaw_units = self.get_parameter("yaw_units").value
-        if self.yaw_units not in ("radians", "degrees"):
-            raise ValueError("yaw_units must be radians or degrees")
-        self.linear_variance = float(self.get_parameter("linear_velocity_stddev").value)**2
-        self.angular_variance = float(self.get_parameter("angular_velocity_stddev").value)**2
-        if self.linear_variance <= 0 or self.angular_variance <= 0:
-            raise ValueError("Odometry measurement variance must be positive")
-        self.feedback_sample = None
-        self.previous_sample = None
-        self.feedback_sequence = 0
-        self.published_sequence = 0
-        self.last_motion_log = 0.
         self.feedback_rate = self.get_parameter("feedback_rate").value
         self.feedback_interval_ms = self.get_parameter("feedback_interval_ms").value
         self.battery_rate = self.get_parameter("battery_rate").value
@@ -236,7 +202,6 @@ class WaveRoverDriver(Node):
 
         self.current_linear = 0.0
         self.current_angular = 0.0
-        self.last_feedback_time = 0.0
         self.last_cmd_vel_time = self.get_clock().now()
 
         self.feedback_lock = threading.Lock()
@@ -254,6 +219,8 @@ class WaveRoverDriver(Node):
         self.enc_B = 0
         self.odom_x = 0.0
         self.odom_y = 0.0
+        self.prev_dist_centre = None
+        self.prev_odom_time = self.get_clock().now()
         self.running = True
         self.display_flash_on = True
         self.display_update_count = 0
@@ -320,12 +287,8 @@ class WaveRoverDriver(Node):
 
     def _cmd_vel_callback(self, msg: Twist):
         self.last_cmd_vel_time = self.get_clock().now()
-        linear,angular = msg.linear.x,msg.angular.z
-        if (not math.isfinite(linear) or not math.isfinite(angular)
-                or time.monotonic()-self.last_feedback_time > self.feedback_timeout):
-            linear,angular = 0.0,0.0
-        linear = max(-self.max_linear_vel,min(self.max_linear_vel,linear))
-        angular = max(-self.max_angular_vel,min(self.max_angular_vel,angular))
+        linear = max(-self.max_linear_vel, min(self.max_linear_vel, msg.linear.x))
+        angular = max(-self.max_angular_vel, min(self.max_angular_vel, msg.angular.z))
         self.current_linear = linear
         self.current_angular = angular
         self._send_velocity(linear, angular)
@@ -333,33 +296,16 @@ class WaveRoverDriver(Node):
     def _heartbeat_callback(self):
         now = self.get_clock().now()
         age = (now - self.last_cmd_vel_time).nanoseconds / 1e9
-        if age > self.cmd_vel_timeout or time.monotonic()-self.last_feedback_time > self.feedback_timeout:
+        if age > self.cmd_vel_timeout:
             if self.current_linear != 0.0 or self.current_angular != 0.0:
                 self.current_linear = 0.0
                 self.current_angular = 0.0
-                self.get_logger().warning("Command or base feedback timeout, stopping robot")
+                self.get_logger().warning("cmd_vel timeout, stopping robot")
             self._send_velocity(0.0, 0.0)
             return
         self._send_velocity(self.current_linear, self.current_angular)
 
     def _send_velocity(self, linear: float, angular: float):
-        if not math.isfinite(linear) or not math.isfinite(angular):
-            linear, angular = 0.0, 0.0
-        if abs(linear) < 1e-6 and abs(angular) >= 1e-6:
-            # 原地转：左右轮反向。L/R 是底盘指令值，不是实测角速度。
-            if not self.direct_turn_active:
-                self.transport.write_json({"T": 13, "X": 0.0, "Z": 0.0})
-            # 避免小指令带不动轮子；左右两侧始终等幅反向。
-            magnitude = max(self.turn_wheel_min,
-                            min(self.turn_wheel_limit, abs(angular)*self.turn_wheel_gain))
-            wheel = math.copysign(magnitude, angular)
-            self.transport.write_json({"T": 1, "L": round(-wheel, 4), "R": round(wheel, 4)})
-            self.direct_turn_active = True
-            return
-        # 切回直走或停车时，先清除左右轮指令；超时和退出也走这里。
-        if self.direct_turn_active or (linear == 0.0 and angular == 0.0):
-            self.transport.write_json({"T": 1, "L": 0.0, "R": 0.0})
-        self.direct_turn_active = False
         self.transport.write_json({"T": 13, "X": round(linear, 4), "Z": round(angular, 4)})
 
     def _serial_reader_loop(self):
@@ -379,10 +325,6 @@ class WaveRoverDriver(Node):
             self.latest_json_feedback = json.dumps(data, separators=(",", ":"))
             t_code = data.get("T", 0)
             if t_code == 1001:
-                # A partial/status packet must not refresh the odometry watchdog.
-                if not all(k in data and math.isfinite(float(data[k]))
-                           for k in ("dist_centre", "yaw_odom")):
-                    return
                 self.dist_L = float(data.get("dist_L", self.dist_L))
                 self.dist_R = float(data.get("dist_R", self.dist_R))
                 self.dist_centre = float(data.get("dist_centre", self.dist_centre))
@@ -392,11 +334,6 @@ class WaveRoverDriver(Node):
                 self.enc_B = int(data.get("encB", self.enc_B))
                 self.voltage = float(data.get("voltage", self.voltage))
                 self.battery_percentage = self._estimate_battery_percentage(self.voltage)
-                self.last_feedback_time = time.monotonic()
-                self.feedback_sequence += 1
-                self.feedback_sample = (self.last_feedback_time, self.get_clock().now().to_msg(),
-                                        self.dist_centre, self._yaw_radians(self.yaw_odom),
-                                        self.dist_L, self.dist_R, self.enc_A, self.enc_B)
             elif t_code == 1002:
                 self.yaw_imu = float(data.get("yaw_imu", self.yaw_imu))
                 self.imu_roll = float(data.get("r", self.imu_roll))
@@ -438,58 +375,56 @@ class WaveRoverDriver(Node):
             self._publish_odom()
 
     def _yaw_radians(self, yaw_value: float) -> float:
-        return math.radians(yaw_value) if self.yaw_units == "degrees" else yaw_value
+        if abs(yaw_value) > 2.0 * math.pi:
+            return math.radians(yaw_value)
+        return yaw_value
 
     def _publish_odom(self):
+        now = self.get_clock().now()
         with self.feedback_lock:
-            if self.feedback_sample is None or self.feedback_sequence == self.published_sequence:
-                return
-            sample = self.feedback_sample
-            self.published_sequence = self.feedback_sequence
-        received, stamp, distance, yaw, left, right, enc_a, enc_b = sample
-        previous = self.previous_sample
-        self.previous_sample = sample
-        if previous is None or received-previous[0] > self.feedback_timeout:
-            return
-        dt = received-previous[0]
-        if dt <= 0:
-            return
-        delta = distance-previous[2]
-        angle = math.atan2(math.sin(yaw-previous[3]), math.cos(yaw-previous[3]))
-        linear_velocity, angular_velocity = delta/dt, angle/dt
-        mid_yaw = previous[3]+angle/2
-        self.odom_x += delta*math.cos(mid_yaw)
-        self.odom_y += delta*math.sin(mid_yaw)
+            dist_centre = float(self.dist_centre)
+            yaw = self._yaw_radians(float(self.yaw_odom))
 
-        msg = Odometry()
-        msg.header.stamp = stamp  # Receipt of this measurement, not a later timer tick.
-        msg.header.frame_id = self.odom_frame
-        msg.child_frame_id = self.base_frame
-        msg.pose.pose.position.x, msg.pose.pose.position.y = self.odom_x, self.odom_y
-        msg.pose.pose.orientation.z, msg.pose.pose.orientation.w = math.sin(yaw/2), math.cos(yaw/2)
-        msg.twist.twist.linear.x = linear_velocity
-        msg.twist.twist.angular.z = angular_velocity
-        # Initial uncertainty estimates, not a calibration result. EKF uses vx only.
-        for index in (0, 7, 14, 21, 28, 35):
-            msg.pose.covariance[index] = 1.0
-            msg.twist.covariance[index] = 1.0
-        msg.twist.covariance[0] = self.linear_variance
-        msg.twist.covariance[35] = self.angular_variance
-        self.odom_pub.publish(msg)
+        if self.prev_dist_centre is None:
+            delta_dist = 0.0
+        else:
+            delta_dist = dist_centre - self.prev_dist_centre
+
+        dt = (now - self.prev_odom_time).nanoseconds / 1e9
+        linear_velocity = delta_dist / dt if dt > 1e-6 else 0.0
+
+        self.odom_x += delta_dist * math.cos(yaw)
+        self.odom_y += delta_dist * math.sin(yaw)
+        self.prev_dist_centre = dist_centre
+        self.prev_odom_time = now
+
+        half_yaw = yaw * 0.5
+        orientation_z = math.sin(half_yaw)
+        orientation_w = math.cos(half_yaw)
+        stamp = now.to_msg()
+
+        odom_msg = Odometry()
+        odom_msg.header.stamp = stamp
+        odom_msg.header.frame_id = self.odom_frame
+        odom_msg.child_frame_id = self.base_frame
+        odom_msg.pose.pose.position.x = self.odom_x
+        odom_msg.pose.pose.position.y = self.odom_y
+        odom_msg.pose.pose.orientation.z = orientation_z
+        odom_msg.pose.pose.orientation.w = orientation_w
+        odom_msg.twist.twist.linear.x = linear_velocity
+        odom_msg.twist.twist.angular.z = float(self.current_angular)
+        self.odom_pub.publish(odom_msg)
+
         if self.publish_odom_tf:
             transform = TransformStamped()
-            transform.header = msg.header
+            transform.header.stamp = stamp
+            transform.header.frame_id = self.odom_frame
             transform.child_frame_id = self.base_frame
-            transform.transform.translation.x, transform.transform.translation.y = self.odom_x, self.odom_y
-            transform.transform.rotation = msg.pose.pose.orientation
+            transform.transform.translation.x = self.odom_x
+            transform.transform.translation.y = self.odom_y
+            transform.transform.rotation.z = orientation_z
+            transform.transform.rotation.w = orientation_w
             self.tf_broadcaster.sendTransform(transform)
-        # One readable diagnostic line per second; measurement publication is not throttled.
-        if received-self.last_motion_log >= 1.0 and (self.current_linear != 0 or delta != 0):
-            self.last_motion_log = received
-            self.get_logger().info(
-                f'底盘方向: cmd={self.current_linear:+.3f} vx={linear_velocity:+.3f} '
-                f'dcentre={delta:+.5f} dL={left-previous[4]:+.5f} dR={right-previous[5]:+.5f} '
-                f'encA={enc_a-previous[6]:+d} encB={enc_b-previous[7]:+d}')
 
     def _battery_publish_callback(self):
         with self.feedback_lock:

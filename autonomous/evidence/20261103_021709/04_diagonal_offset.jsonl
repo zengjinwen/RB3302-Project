@@ -1,7 +1,0 @@
-{"event": "INITIAL ALIGNMENT x=3.425 y=0.185 yaw=169.5 residual=0.009", "time": 0.9}
-{"event": "MISSION START", "time": 0.9}
-{"event": "TARGET O", "time": 1.9}
-{"event": "TARGET O", "time": 2.5}
-{"event": "GOAL O error=0.024m", "time": 21.7}
-{"event": "TARGET Q", "time": 24.7}
-{"event": "GOAL Q error=0.025m", "time": 43.0}

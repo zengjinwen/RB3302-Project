@@ -1,7 +1,0 @@
-{
-  "name": "01_A_east_clear",
-  "start": "A",
-  "bearing": "E",
-  "goals": "A,F,S,A",
-  "env": {}
-}

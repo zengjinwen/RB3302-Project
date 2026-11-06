@@ -1,8 +1,0 @@
-{"event": "MISSION START", "time": 0.57}
-{"event": "TARGET F", "time": 1.802}
-{"event": "REPLAN ", "time": 1.84}
-{"event": "TARGET F", "time": 2.4}
-{"event": "REPLAN ", "time": 7.484}
-{"event": "TARGET F", "time": 8.001}
-{"event": "GOAL F error=0.021m", "time": 27.101}
-{"event": "TARGET C", "time": 30.202}

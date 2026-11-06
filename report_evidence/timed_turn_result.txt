@@ -1,5 +1,0 @@
-+90deg: stop at2.500s, finalcmd0,0, no odom calls
--90deg: stop at2.500s, finalcmd0,0, no odom calls
-+180deg: stop at5.000s, finalcmd0,0, no odom calls
-+85deg: stop at2.361s, finalcmd0,0, no odom calls
-Actual method tested with fake clock, not physical turning calibration. drive_line AST unchanged.

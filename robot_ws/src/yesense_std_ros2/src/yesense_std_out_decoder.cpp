@@ -70,14 +70,6 @@
 // ===========================================================================
 namespace yesense
 {
-template<typename T>
-T read_scalar(const unsigned char *data)
-{
-    T value;
-    memcpy(&value, data, sizeof(value));
-    return value;
-}
-
 
 yis_std_out_decoder::yis_std_out_decoder()
 {
@@ -136,8 +128,8 @@ int yis_std_out_decoder::data_proc(unsigned char *data, unsigned int len, yis_ou
         }
         else
         {
-            i += tlv->data_len + 2u;
-            cnt -= tlv->data_len + 2u;
+            i++;
+            cnt--;
         }
     }
     
@@ -149,7 +141,7 @@ int yis_std_out_decoder::data_proc(unsigned char *data, unsigned int len, yis_ou
     msg_idx.st_idx  = i;
 
     // check message length
-    if(cnt < PROTOCOL_MIN_LEN)
+    if(cnt <= PROTOCOL_MIN_LEN)
     {
         return data_len_err;
     }
@@ -160,12 +152,9 @@ int yis_std_out_decoder::data_proc(unsigned char *data, unsigned int len, yis_ou
         return data_len_err;
     }
 
-    msg_idx.end_idx = i + header->len + PROTOCOL_MIN_LEN - 1;
-
     // check message checksum
     crc_calc(ptr + i + CRC_CALC_START_POS, CRC_CALC_LEN(header->len), &crc);
-    if(crc != (static_cast<unsigned short>(ptr[i + PROTOCOL_CRC_DATA_POS(header->len)]) |
-               (static_cast<unsigned short>(ptr[i + PROTOCOL_CRC_DATA_POS(header->len) + 1]) << 8)))
+    if(crc != *((unsigned short *)(ptr + i + PROTOCOL_CRC_DATA_POS(header->len))))
     {
         return crc_err;
     }
@@ -189,10 +178,6 @@ int yis_std_out_decoder::data_proc(unsigned char *data, unsigned int len, yis_ou
     cnt = header->len;
     while(cnt)
     {
-        if (cnt < DATA_OFFSET_TO_DATA_ID || ptr[i + 1] > cnt - DATA_OFFSET_TO_DATA_ID) {
-            memset(&result->content, 0, sizeof(result->content));
-            return crc_err; // Malformed payload: discard and resynchronize.
-        }
         tlv = (payload_info_t *)(ptr + i);
         ret = parse_data_by_id(tlv, ptr + i + DATA_OFFSET_TO_DATA_ID, result); 
 #ifdef __USER_DEBUG        
@@ -200,8 +185,8 @@ int yis_std_out_decoder::data_proc(unsigned char *data, unsigned int len, yis_ou
 #endif        
         if(analysis_ok != ret)
         {
-            i += tlv->data_len + 2u;
-            cnt -= tlv->data_len + 2u;
+            i++;
+            cnt--;
         }   
         else
         {
@@ -227,9 +212,7 @@ int yis_std_out_decoder::convert_data_s32(unsigned char *data, float *result, fl
 
     for(unsigned short i = 0; i < cnt; i++)
     {
-        int value;
-        memcpy(&value, data + i * sizeof(value), sizeof(value));
-        result[i] = value * sens;
+        result[i] = *((int *)data + i) * sens;
     }   
 
     return analysis_ok; 
@@ -260,7 +243,7 @@ int yis_std_out_decoder::parse_data_by_id(payload_info_t *info, unsigned char *d
 		{
 			if(SENSOR_TEMP_DATA_LEN == info->data_len)
 			{
-				result->sensor_temp         = read_scalar<short>(ptr) * SENSOR_TEMP_FACTOR;
+				result->sensor_temp         = *((short *)ptr) * SENSOR_TEMP_FACTOR;
                 result->content.valid_flg   = 1u;
                 result->content.sensor_temp = 1u;
 			}
@@ -372,9 +355,9 @@ int yis_std_out_decoder::parse_data_by_id(payload_info_t *info, unsigned char *d
 		{
 			if(LOCATION_DATA_LEN == info->data_len)
 			{
-				result->pos.latitude  = read_scalar<long long int>(ptr)* HIGH_RES_LONG_LAT_DATA_FACTOR;
-				result->pos.longitude = read_scalar<long long int>(ptr + 8) * HIGH_RES_LONG_LAT_DATA_FACTOR;
-				result->pos.altitude   = read_scalar<int>(ptr + 16) * ALT_DATA_FACTOR;
+				result->pos.latitude  = *((long long int *)ptr)* HIGH_RES_LONG_LAT_DATA_FACTOR;
+				result->pos.longitude = *((long long int *)ptr + 1) * HIGH_RES_LONG_LAT_DATA_FACTOR;
+				result->pos.altitude   = *((int *)(ptr + 16)) * ALT_DATA_FACTOR;
                 result->content.valid_flg   = 1u;
                 result->content.pos         = 1u;
 			}
@@ -422,7 +405,7 @@ int yis_std_out_decoder::parse_data_by_id(payload_info_t *info, unsigned char *d
 		{
 			if(SAMPLE_TIMESTAMP_DATA_LEN == info->data_len)
 			{
-				result->sample_timestamp            = read_scalar<unsigned int>(ptr);
+				result->sample_timestamp            = *((unsigned int *)ptr);
                 result->content.valid_flg           = 1u;    
                 result->content.sample_timestamp    = 1u;                                   
 			}
@@ -438,7 +421,7 @@ int yis_std_out_decoder::parse_data_by_id(payload_info_t *info, unsigned char *d
 		{
 			if(DATA_READY_TIMESTAMP_DATA_LEN == info->data_len)
 			{
-				result->dataready_timestamp         = read_scalar<unsigned int>(ptr);
+				result->dataready_timestamp         = *((unsigned int *)ptr);
                 result->content.valid_flg           = 1u;     
                 result->content.dataready_timestamp = 1u;              
 			}

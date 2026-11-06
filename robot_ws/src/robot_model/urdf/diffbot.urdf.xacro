@@ -9,8 +9,8 @@
   <xacro:arg name="imu_frame" default="gyro_link"/>
   <xacro:arg name="laser_frame" default="laser"/>
   <!-- Yaw (radians) of the LiDAR scan frame relative to base_link forward
-       (+X). The current mounting uses a rear-facing scan-zero direction (pi).
-       Keep this explicit mounting setting; verify physically before changing it. -->
+       (+X). The RPLidar driver already reports angle zero along the sensor's
+       forward direction, so no additional half-turn belongs in TF. -->
   <xacro:arg name="laser_yaw" default="3.141592653589793"/>
   <xacro:property name="base_frame" value="$(arg base_frame)"/>
   <xacro:property name="tracking_frame" value="$(arg tracking_frame)"/>
@@ -21,8 +21,8 @@
   <!-- ============================================================
        Configurable physical dimensions
        ============================================================ -->
-  <xacro:property name="chassis_length" value="0.20"/>
-  <xacro:property name="chassis_width" value="0.20"/>
+  <xacro:property name="chassis_length" value="0.30"/>
+  <xacro:property name="chassis_width" value="0.25"/>
   <xacro:property name="chassis_height" value="0.10"/>
   <xacro:property name="chassis_mass" value="5.0"/>
 
@@ -35,11 +35,13 @@
 
   <xacro:property name="lidar_radius" value="0.035"/>
   <xacro:property name="lidar_height" value="0.04"/>
-  <!-- User revised 2026-11-06: LiDAR centre approximately 15 mm FORWARD
-       of chassis centre. IMU horizontal origin remains at base centre;
-       existing height offsets retained, not newly measured. -->
+  <!-- Measured sensor geometry. H30 is 50 mm above base origin (the
+       turning centre). The LiDAR is 45 mm IN FRONT of it and 40 mm above
+       it: measured from on-the-spot pivots by scan matching (2026-10-29),
+       matching the ~5 cm hand measurement. The old -0.052 (behind) put the
+       robot ~10 cm ahead of where it really was. -->
   <xacro:property name="imu_mount_z" value="0.050"/>
-  <xacro:property name="lidar_from_imu_x" value="0.015"/>
+  <xacro:property name="lidar_from_imu_x" value="0.045"/>
   <!-- gyro_link has down-positive Z because the H30 is installed FRD. -->
   <xacro:property name="lidar_from_imu_z" value="-0.040"/>
 

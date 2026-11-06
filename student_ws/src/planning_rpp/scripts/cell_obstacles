@@ -1,0 +1,458 @@
+#!/usr/bin/env python3
+"""Confirm one blocked course square from the LiDAR and mark it in the costmaps.
+
+Runs beside Nav2 and never commands the base:
+
+    /scan + /map + TF  ->  cell_obstacles  ->  /blocked_cells  (PointCloud2)
+                                           ->  /blocked_cell   (String, letter)
+
+Nav2's costmaps already mark the raw scan, so a box standing in a square is
+avoided locally. This node adds the course rule on top of that: an obstacle
+occupies one whole 60 cm square. Once a broad, axis-aligned face is seen
+across the near side of a neighbouring square for several scans in a row,
+the WHOLE square is published as a dense point cloud that both costmaps
+mark (marking only, never clearing). The planner then routes around the
+square instead of trying to squeeze past the box, and the behaviour tree's
+1 Hz replanning picks the new path up while the robot is driving.
+
+Detection, per scan, in the arena frame (X = East, Y = North, squares
+axis-aligned; see maps/<map>_arena.yaml):
+  * a hit behind a mapped wall, or within ~10 cm of one, is not an
+    obstacle (localisation jitter would otherwise duplicate the walls);
+  * for each of the current square's four neighbours, hits within
+    boundary_tolerance of that neighbour's near face and inside its width
+    are collected; a blocking face needs >= 5 hits at one depth that span
+    >= min_width, straddle the square's centre line, and fit a straight
+    line within 10 deg of the face with < 2.5 cm residual;
+  * the nearest such square is the candidate; it is confirmed after >= 4
+    consecutive scans over confirm_time agree, and REPLACES any earlier
+    blocked square (the course places at most one obstacle);
+  * a candidate that would cut the current target off on the letter grid
+    is ignored (one obstacle must always leave a route).
+
+Watch it:
+    ros2 topic echo /blocked_cell
+"""
+import heapq
+import math
+import os
+
+import rclpy
+import yaml
+from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
+from rclpy.time import Time
+from nav_msgs.msg import OccupancyGrid, Path
+from sensor_msgs.msg import LaserScan, PointCloud2
+from sensor_msgs_py import point_cloud2
+from std_msgs.msg import Header, String
+from tf2_ros import Buffer, TransformException, TransformListener
+
+ROWS = ['ABCDEF', 'GHIJKL', 'MNOPQR', 'STUVWX']  # north to south
+MAP_FRAME = 'map'
+# Same course file as go_letters; RB3302_COURSE_FILE overrides the path.
+COURSE_FILE = os.environ.get('RB3302_COURSE_FILE', os.path.join(
+    os.path.expanduser('~'), 'rb3302_final_proj_code', 'student_ws', 'maps',
+    'rb3302_map_arena.yaml'))
+
+
+def yaw_of(q):
+    return math.atan2(2.0 * (q.w * q.z + q.x * q.y),
+                      1.0 - 2.0 * (q.y * q.y + q.z * q.z))
+
+
+class Arena:
+    """map <-> arena frame and the course grid read from the course file."""
+
+    def __init__(self, path):
+        with open(path) as f:
+            data = yaml.safe_load(f)
+        self.x = float(data['arena_x'])
+        self.y = float(data['arena_y'])
+        self.yaw = float(data['arena_yaw'])
+        self.cell = (float(data.get('cell_x', 0.6)),
+                     float(data.get('cell_y', 0.6)))
+        self.c, self.s = math.cos(self.yaw), math.sin(self.yaw)
+        self.targets = {k: (float(v[0]), float(v[1]))
+                        for k, v in data['targets'].items()}
+        missing = [c for row in ROWS for c in row if c not in self.targets]
+        if missing:
+            raise RuntimeError(f'{path} has no target for {" ".join(missing)}')
+        self.points = {k: self.to_arena(v) for k, v in self.targets.items()}
+
+    def to_arena(self, p):
+        dx, dy = p[0] - self.x, p[1] - self.y
+        return (self.c * dx + self.s * dy, -self.s * dx + self.c * dy)
+
+    def to_map(self, p):
+        return (self.x + self.c * p[0] - self.s * p[1],
+                self.y + self.s * p[0] + self.c * p[1])
+
+    def neighbours(self, name):
+        """The up-to-four squares sharing an edge with `name`."""
+        ax, ay = self.points[name]
+        out = []
+        for other, (bx, by) in self.points.items():
+            if other == name:
+                continue
+            dx, dy = abs(bx - ax), abs(by - ay)
+            if ((abs(dx - self.cell[0]) < 0.12 and dy < 0.12) or
+                    (abs(dy - self.cell[1]) < 0.12 and dx < 0.12)):
+                out.append(other)
+        return out
+
+
+class MapPlanner:
+    """Letter-grid A* on the static map; only used to check that a blocked
+    square still leaves a route to the target."""
+
+    def __init__(self, msg, arena, clearance):
+        self.arena = arena
+        resolution = msg.info.resolution
+        width, height = msg.info.width, msg.info.height
+        origin = msg.info.origin.position
+        blocked = set()
+        n = math.ceil(clearance / resolution)
+        offsets = [(x, y) for x in range(-n, n + 1) for y in range(-n, n + 1)
+                   if math.hypot(x, y) * resolution <= clearance + 1e-6]
+        for i, value in enumerate(msg.data):
+            if value < 0 or value >= 50:
+                blocked.update((i % width + x, i // width + y)
+                               for x, y in offsets)
+
+        def clear_line(a, b):
+            steps = max(1, math.ceil(math.dist(a, b) / (resolution / 2)))
+            for i in range(steps + 1):
+                x = math.floor((a[0] + (b[0] - a[0]) * i / steps - origin.x)
+                               / resolution)
+                y = math.floor((a[1] + (b[1] - a[1]) * i / steps - origin.y)
+                               / resolution)
+                if not (0 <= x < width and 0 <= y < height) or \
+                        (x, y) in blocked:
+                    return False
+            return True
+
+        self.clear_line = clear_line
+        self.neighbors = {
+            name: [other for other in arena.neighbours(name)
+                   if clear_line(arena.targets[name], arena.targets[other])]
+            for name in arena.targets}
+
+    def plan(self, start, goal, blocked_cell=None):
+        if start == blocked_cell or goal == blocked_cell:
+            return []
+
+        def distance(name):
+            a, b = self.arena.points[name], self.arena.points[goal]
+            return (abs(a[0] - b[0]) / self.arena.cell[0] +
+                    abs(a[1] - b[1]) / self.arena.cell[1])
+
+        queue = [(distance(start), 0, start)]
+        costs, parent = {start: 0}, {}
+        while queue:
+            _, cost, current = heapq.heappop(queue)
+            if cost != costs[current]:
+                continue
+            if current == goal:
+                route = [current]
+                while route[-1] != start:
+                    route.append(parent[route[-1]])
+                return route[::-1]
+            for nxt in self.neighbors[current]:
+                if nxt == blocked_cell:
+                    continue
+                if cost + 1 < costs.get(nxt, math.inf):
+                    costs[nxt], parent[nxt] = cost + 1, current
+                    heapq.heappush(queue, (cost + 1 + distance(nxt),
+                                           cost + 1, nxt))
+        return []
+
+
+class CellObstacle:
+    """Detect a stable broad obstruction in a neighbouring square."""
+
+    def __init__(self, arena, map_msg, confirm_time=0.5, min_width=0.30,
+                 boundary_tolerance=0.20):
+        self.arena = arena
+        self.boundary_tolerance = boundary_tolerance
+        self.confirm_time, self.min_width = confirm_time, min_width
+        self.blocked = self.candidate = None
+        self.since = self.last_stamp = None
+        self.count = 0
+        info = map_msg.info
+        self.resolution = info.resolution
+        self.origin = (info.origin.position.x, info.origin.position.y)
+        self.width, self.height = info.width, info.height
+        self.data = map_msg.data
+
+    def static_free(self, x, y):
+        """(x, y) in the map frame is free and not within two map pixels
+        (~10 cm) of a known wall or unknown space."""
+        ix = math.floor((x - self.origin[0]) / self.resolution)
+        iy = math.floor((y - self.origin[1]) / self.resolution)
+        for dx in range(-2, 3):
+            for dy in range(-2, 3):
+                j, k = ix + dx, iy + dy
+                if not (0 <= j < self.width and 0 <= k < self.height):
+                    return False
+                value = self.data[k * self.width + j]
+                if value < 0 or value >= 50:
+                    return False
+        return True
+
+    def visible_in_map(self, laser, hit):
+        """A return behind an existing mapped wall cannot be a new
+        obstacle (map-frame points)."""
+        length = math.dist(laser, hit)
+        steps = max(1, math.ceil(length / (self.resolution * 0.5)))
+        for i in range(1, steps):
+            x = laser[0] + (hit[0] - laser[0]) * i / steps
+            y = laser[1] + (hit[1] - laser[1]) * i / steps
+            ix = math.floor((x - self.origin[0]) / self.resolution)
+            iy = math.floor((y - self.origin[1]) / self.resolution)
+            if not (0 <= ix < self.width and 0 <= iy < self.height):
+                return False
+            value = self.data[iy * self.width + ix]
+            if value < 0 or value >= 50:
+                return False
+        return True
+
+    def detect_cells(self, hits, laser, cells):
+        """Squares (nearest first) whose near face is covered by a broad,
+        axis-aligned surface. `hits` and `laser` are map-frame points."""
+        arena = self.arena
+        free_hits = [arena.to_arena(h) for h in hits
+                     if self.visible_in_map(laser, h)]
+        laser_a = arena.to_arena(laser)
+        half = (arena.cell[0] / 2.0, arena.cell[1] / 2.0)
+        matches = []
+        for name in cells:
+            centre = arena.points[name]
+            dx, dy = laser_a[0] - centre[0], laser_a[1] - centre[1]
+            axis = 0 if abs(dx) >= abs(dy) else 1
+            direction = math.copysign(1.0, dx if axis == 0 else dy)
+            near_face = centre[axis] + direction * half[axis]
+            # Only the neighbour's near face; never its far or side faces.
+            local = [(hit[axis], hit[1 - axis] - centre[1 - axis])
+                     for hit in free_hits
+                     if abs(hit[axis] - near_face) <= self.boundary_tolerance
+                     and abs(hit[1 - axis] - centre[1 - axis]) <= half[1 - axis]]
+            # A broad surface must exist at one depth; scattered returns
+            # do not count.
+            for depth, _ in local:
+                surface = [(d, lateral) for d, lateral in local
+                           if depth <= d <= depth + 0.12]
+                across = [lateral for _, lateral in surface]
+                if (len(across) < 5 or max(across) - min(across) < self.min_width
+                        or not min(across) < 0 < max(across)):
+                    continue
+                # The face must stand in mapped free space, away from walls.
+                support = 0
+                for d, lateral in surface:
+                    point = [centre[0], centre[1]]
+                    point[axis], point[1 - axis] = d, centre[1 - axis] + lateral
+                    support += self.static_free(*arena.to_map(point))
+                if support < 5:
+                    continue
+                # Fit depth against transverse position: a blocking face is
+                # axis-aligned.
+                mean_d = sum(d for d, _ in surface) / len(surface)
+                mean_l = sum(across) / len(across)
+                variance = sum((l - mean_l) ** 2 for l in across)
+                if variance <= 0.0:
+                    continue
+                slope = sum((l - mean_l) * (d - mean_d)
+                            for d, l in surface) / variance
+                residual = math.sqrt(sum((d - mean_d - slope * (l - mean_l)) ** 2
+                                         for d, l in surface) / len(surface))
+                if abs(slope) > math.tan(math.radians(10)) or residual > 0.025:
+                    continue
+                matches.append((math.hypot(dx, dy), name))
+                break
+        return [name for _, name in sorted(matches)]
+
+    def observe(self, candidate, stamp):
+        """Feed one scan's candidate; True when a new square is confirmed."""
+        if self.last_stamp is not None and stamp <= self.last_stamp:
+            return False
+        gap = self.last_stamp is None or stamp - self.last_stamp > 1.0
+        self.last_stamp = stamp
+        if gap or candidate != self.candidate:
+            self.candidate, self.since, self.count = candidate, stamp, 0
+        self.count += 1
+        if (candidate is not None and candidate != self.blocked
+                and self.count >= 4
+                and stamp - self.since >= self.confirm_time):
+            self.blocked = candidate  # Replace, never accumulate old cells.
+            return True
+        return False
+
+
+class CellObstacles(Node):
+
+    def __init__(self):
+        super().__init__('cell_obstacles')
+        p = self.declare_parameter
+        course_file = p('course_file', COURSE_FILE).value
+        self.confirm_time = p('confirm_time', 0.5).value
+        self.min_width = p('min_width', 0.30).value
+        self.boundary_tolerance = p('boundary_tolerance', 0.20).value
+        # Clearance used only for the letter-grid route check.
+        self.grid_clearance = p('grid_clearance', 0.12).value
+        # Scans are processed at most this often (s); the rest are skipped.
+        self.scan_period = p('scan_period', 0.25).value
+        self.cloud_rate = p('cloud_rate', 5.0).value
+        self.point_step = p('point_step', 0.025).value
+        self.point_height = p('point_height', 0.10).value
+
+        self.arena = Arena(course_file)
+        self.get_logger().info(f'course squares from {course_file}')
+        self.planner = None
+        self.obstacles = None
+        self.target = ''
+        self.plan_poses = []
+        self.last_scan_time = None
+        self.reported_unreachable = None
+
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.cloud_pub = self.create_publisher(PointCloud2, 'blocked_cells', 1)
+        self.cell_pub = self.create_publisher(String, 'blocked_cell', latched)
+        self.create_subscription(OccupancyGrid, 'map', self.on_map, latched)
+        self.create_subscription(LaserScan, 'scan', self.on_scan,
+                                 qos_profile_sensor_data)
+        self.create_subscription(String, 'go_letters/target', self.on_target,
+                                 latched)
+        self.create_subscription(Path, 'plan', self.on_plan, 10)
+        self.create_timer(1.0 / self.cloud_rate, self.publish_cloud)
+
+    def on_map(self, msg):
+        if self.planner is not None:
+            return
+        self.planner = MapPlanner(msg, self.arena, self.grid_clearance)
+        self.obstacles = CellObstacle(self.arena, msg, self.confirm_time,
+                                      self.min_width, self.boundary_tolerance)
+        lonely = [n for n, nb in self.planner.neighbors.items() if not nb]
+        if lonely:
+            self.get_logger().warn(
+                f'no clear grid link from {" ".join(lonely)}; the route check '
+                'will reject obstacles next to them (raise grid_clearance?)')
+        self.get_logger().info('map received; watching for a blocked square')
+
+    def on_target(self, msg):
+        self.target = msg.data.strip().upper()
+
+    def on_plan(self, msg):
+        self.plan_poses = [(p.pose.position.x, p.pose.position.y)
+                           for p in msg.poses]
+
+    def robot_pose(self):
+        try:
+            t = self.tf_buffer.lookup_transform(MAP_FRAME, 'base_link', Time())
+        except TransformException:
+            return None
+        return (t.transform.translation.x, t.transform.translation.y)
+
+    def square_of(self, point):
+        return min(self.arena.targets,
+                   key=lambda k: math.dist(point, self.arena.targets[k]))
+
+    def on_plan_route(self, name):
+        """True if the current Nav2 path passes through square `name`."""
+        cx, cy = self.arena.points[name]
+        hx, hy = self.arena.cell[0] / 2.0, self.arena.cell[1] / 2.0
+        for p in self.plan_poses:
+            x, y = self.arena.to_arena(p)
+            if abs(x - cx) <= hx and abs(y - cy) <= hy:
+                return True
+        return False
+
+    def on_scan(self, msg):
+        if self.obstacles is None:
+            return
+        now = self.get_clock().now()
+        if self.last_scan_time is not None and \
+                (now - self.last_scan_time).nanoseconds / 1e9 < self.scan_period:
+            return
+        self.last_scan_time = now
+        stamp = Time.from_msg(msg.header.stamp)
+        if (now - stamp).nanoseconds / 1e9 > 1.0:
+            return
+        try:
+            # Never project an old scan using a newer robot pose.
+            tf = self.tf_buffer.lookup_transform(
+                MAP_FRAME, msg.header.frame_id, stamp)
+        except TransformException:
+            return
+        here = self.robot_pose()
+        if here is None:
+            return
+        current = self.square_of(here)
+        p = tf.transform.translation
+        heading = yaw_of(tf.transform.rotation)
+        laser = (p.x, p.y)
+        hits = []
+        for i, distance in enumerate(msg.ranges):
+            if math.isfinite(distance) and \
+                    msg.range_min <= distance <= msg.range_max:
+                angle = heading + msg.angle_min + i * msg.angle_increment
+                hits.append((p.x + distance * math.cos(angle),
+                             p.y + distance * math.sin(angle)))
+        cells = [c for c in self.arena.neighbours(current)
+                 if c != self.obstacles.blocked]
+        observed = self.obstacles.detect_cells(hits, laser, cells)
+        candidate = observed[0] if observed else None
+        if candidate is not None and self.target:
+            if not self.planner.plan(current, self.target, candidate):
+                # Course rule: the one obstacle must leave a route.
+                if self.reported_unreachable != candidate:
+                    self.get_logger().warn(
+                        f'{candidate} looks blocked but that would cut '
+                        f'{self.target} off; ignoring it')
+                    self.reported_unreachable = candidate
+                candidate = None
+        previous = self.obstacles.blocked
+        if self.obstacles.observe(candidate, stamp.nanoseconds / 1e9):
+            blocked = self.obstacles.blocked
+            on_route = self.on_plan_route(blocked)
+            self.get_logger().warn(
+                f'square {blocked} is blocked'
+                + (f' (replaces {previous})' if previous else '')
+                + ('; it is on the current path, Nav2 will replan'
+                   if on_route else '; not on the current path'))
+            self.cell_pub.publish(String(data=blocked))
+            self.publish_cloud()
+
+    def publish_cloud(self):
+        if self.obstacles is None or self.obstacles.blocked is None:
+            return
+        cx, cy = self.arena.points[self.obstacles.blocked]
+        hx, hy = self.arena.cell[0] / 2.0, self.arena.cell[1] / 2.0
+        nx = max(1, int(round(2 * hx / self.point_step)))
+        ny = max(1, int(round(2 * hy / self.point_step)))
+        points = []
+        for i in range(nx + 1):
+            for j in range(ny + 1):
+                x, y = self.arena.to_map((cx - hx + 2 * hx * i / nx,
+                                          cy - hy + 2 * hy * j / ny))
+                points.append((x, y, self.point_height))
+        header = Header(frame_id=MAP_FRAME,
+                        stamp=self.get_clock().now().to_msg())
+        self.cloud_pub.publish(point_cloud2.create_cloud_xyz32(header, points))
+
+
+def main():
+    rclpy.init()
+    node = CellObstacles()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == '__main__':
+    main()
