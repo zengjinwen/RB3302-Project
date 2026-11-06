@@ -324,6 +324,8 @@ class CellObstacles(Node):
         self.plan_poses = []
         self.last_scan_time = None
         self.reported_unreachable = None
+        self.last_square = None
+        self.last_observed = []
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -394,12 +396,21 @@ class CellObstacles(Node):
             # Never project an old scan using a newer robot pose.
             tf = self.tf_buffer.lookup_transform(
                 MAP_FRAME, msg.header.frame_id, stamp)
-        except TransformException:
+        except TransformException as e:
+            self.get_logger().info(f'scan skipped, no map<-laser TF: {e}',
+                                   throttle_duration_sec=5.0)
             return
         here = self.robot_pose()
         if here is None:
+            self.get_logger().info('scan skipped, no map<-base_link TF',
+                                   throttle_duration_sec=5.0)
             return
         current = self.square_of(here)
+        if current != self.last_square:
+            self.get_logger().info(
+                f'robot in {current}; watching '
+                f'{" ".join(self.arena.neighbours(current))}')
+            self.last_square = current
         p = tf.transform.translation
         heading = yaw_of(tf.transform.rotation)
         laser = (p.x, p.y)
@@ -413,6 +424,11 @@ class CellObstacles(Node):
         cells = [c for c in self.arena.neighbours(current)
                  if c != self.obstacles.blocked]
         observed = self.obstacles.detect_cells(hits, laser, cells)
+        if observed != self.last_observed:
+            self.get_logger().info(
+                'face seen across ' + (' '.join(observed) if observed
+                                       else 'nothing') + f' (from {current})')
+            self.last_observed = observed
         candidate = observed[0] if observed else None
         if candidate is not None and self.target:
             if not self.planner.plan(current, self.target, candidate):
