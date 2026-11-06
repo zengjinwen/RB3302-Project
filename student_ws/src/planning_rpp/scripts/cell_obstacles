@@ -37,6 +37,7 @@ import heapq
 import math
 import os
 
+import numpy as np
 import rclpy
 import yaml
 from rclpy.node import Node
@@ -183,46 +184,56 @@ class CellObstacle:
         self.resolution = info.resolution
         self.origin = (info.origin.position.x, info.origin.position.y)
         self.width, self.height = info.width, info.height
-        self.data = map_msg.data
+        # Numpy grids so a whole scan is checked at once (the robot's CPU is
+        # shared with AMCL and the EKF): wall = occupied or unknown cells;
+        # near_wall = wall grown by two pixels (~10 cm) or the map edge.
+        grid = np.asarray(map_msg.data, dtype=np.int16).reshape(
+            self.height, self.width)
+        self.wall = (grid < 0) | (grid >= 50)
+        padded = np.pad(self.wall, 2, constant_values=True)
+        near = np.zeros_like(self.wall)
+        for dy in range(5):
+            for dx in range(5):
+                near |= padded[dy:dy + self.height, dx:dx + self.width]
+        self.near_wall = near
 
     def static_free(self, x, y):
         """(x, y) in the map frame is free and not within two map pixels
         (~10 cm) of a known wall or unknown space."""
         ix = math.floor((x - self.origin[0]) / self.resolution)
         iy = math.floor((y - self.origin[1]) / self.resolution)
-        for dx in range(-2, 3):
-            for dy in range(-2, 3):
-                j, k = ix + dx, iy + dy
-                if not (0 <= j < self.width and 0 <= k < self.height):
-                    return False
-                value = self.data[k * self.width + j]
-                if value < 0 or value >= 50:
-                    return False
-        return True
+        if not (0 <= ix < self.width and 0 <= iy < self.height):
+            return False
+        return not bool(self.near_wall[iy, ix])
 
-    def visible_in_map(self, laser, hit):
-        """A return behind an existing mapped wall cannot be a new
-        obstacle (map-frame points)."""
-        length = math.dist(laser, hit)
-        steps = max(1, math.ceil(length / (self.resolution * 0.5)))
-        for i in range(1, steps):
-            x = laser[0] + (hit[0] - laser[0]) * i / steps
-            y = laser[1] + (hit[1] - laser[1]) * i / steps
-            ix = math.floor((x - self.origin[0]) / self.resolution)
-            iy = math.floor((y - self.origin[1]) / self.resolution)
-            if not (0 <= ix < self.width and 0 <= iy < self.height):
-                return False
-            value = self.data[iy * self.width + ix]
-            if value < 0 or value >= 50:
-                return False
-        return True
+    def visible_in_map(self, laser, hits):
+        """Which of the map-frame `hits` are not behind an existing mapped
+        wall (a return behind a wall cannot be a new obstacle). Returns a
+        boolean array, one entry per hit."""
+        hits = np.asarray(hits, dtype=float).reshape(-1, 2)
+        if not len(hits):
+            return np.zeros(0, dtype=bool)
+        laser = np.asarray(laser, dtype=float)
+        longest = float(np.max(np.hypot(*(hits - laser).T)))
+        steps = int(min(max(2, math.ceil(longest / (self.resolution * 0.5))),
+                        400))
+        t = np.arange(1, steps)[:, None, None] / steps      # exclude the hit
+        samples = laser + t * (hits - laser)                # (steps-1, n, 2)
+        ix = np.floor((samples[..., 0] - self.origin[0]) / self.resolution)
+        iy = np.floor((samples[..., 1] - self.origin[1]) / self.resolution)
+        inside = (ix >= 0) & (ix < self.width) & (iy >= 0) & (iy < self.height)
+        blocked = ~inside
+        ixi = np.clip(ix, 0, self.width - 1).astype(int)
+        iyi = np.clip(iy, 0, self.height - 1).astype(int)
+        blocked |= self.wall[iyi, ixi]
+        return ~np.any(blocked, axis=0)
 
     def detect_cells(self, hits, laser, cells):
         """Squares (nearest first) whose near face is covered by a broad,
         axis-aligned surface. `hits` and `laser` are map-frame points."""
         arena = self.arena
-        free_hits = [arena.to_arena(h) for h in hits
-                     if self.visible_in_map(laser, h)]
+        visible = self.visible_in_map(laser, hits)
+        free_hits = [arena.to_arena(h) for h, ok in zip(hits, visible) if ok]
         laser_a = arena.to_arena(laser)
         half = (arena.cell[0] / 2.0, arena.cell[1] / 2.0)
         matches = []
@@ -300,7 +311,7 @@ class CellObstacles(Node):
         # Clearance used only for the letter-grid route check.
         self.grid_clearance = p('grid_clearance', 0.12).value
         # Scans are processed at most this often (s); the rest are skipped.
-        self.scan_period = p('scan_period', 0.25).value
+        self.scan_period = p('scan_period', 0.5).value
         self.cloud_rate = p('cloud_rate', 5.0).value
         self.point_step = p('point_step', 0.025).value
         self.point_height = p('point_height', 0.10).value
