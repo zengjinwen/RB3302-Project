@@ -10,7 +10,6 @@
 #    keep the grid centre.
 # 3. 2026-11-05: everything (grid origin and all targets) shifted 5 cm
 #    west by hand after a run showed the robot stopping too far east.
-# 4. 2026-11-06: X moved 1.5 cm east (robot 7 stopped ~1-2 cm west of centre).
 #
 # go_letters drives to `targets` (map frame, m) and uses arena_yaw for the
 # start bearing; planning.launch.py publishes map->arena from arena_x/y/yaw
@@ -44,4 +43,4 @@ targets:
   U: [-0.012, 0.181]
   V: [-0.275, -0.359]
   W: [-0.522, -0.907]
-  X: [-0.821, -1.446]
+  X: [-0.814, -1.433]
