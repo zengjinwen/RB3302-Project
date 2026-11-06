@@ -59,7 +59,9 @@ controller_server:
     progress_checker:
       plugin: nav2_controller::SimpleProgressChecker
       required_movement_radius: 0.15
-      movement_time_allowance: 5.0
+      # 10 s (was 5): on robot 7 a pivot runs at ~0.5 rad/s, so a half turn
+      # takes over 5 s and was being reported as "no progress".
+      movement_time_allowance: 10.0
     goal_checker:
       plugin: nav2_controller::SimpleGoalChecker
       # A 0.31 m robot stays fully inside a 0.6 m square up to ~0.145 m off
