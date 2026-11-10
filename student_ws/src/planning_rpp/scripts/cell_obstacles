@@ -343,7 +343,8 @@ class CellObstacles(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
         latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.cloud_pub = self.create_publisher(PointCloud2, 'blocked_cells', 1)
-        self.cell_pub = self.create_publisher(String, 'blocked_cell', latched)
+        # Not latched: a later go_letters must not see an earlier run's square.
+        self.cell_pub = self.create_publisher(String, 'blocked_cell', 1)
         self.create_subscription(OccupancyGrid, 'map', self.on_map, latched)
         self.create_subscription(LaserScan, 'scan', self.on_scan,
                                  qos_profile_sensor_data)

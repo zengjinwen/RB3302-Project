@@ -215,7 +215,7 @@ class GoLetters(Node):
         self.goals_pub = self.create_publisher(String, 'go_letters/goals',
                                                latched)
         self.create_subscription(String, 'blocked_cell', self.on_blocked_cell,
-                                 latched)
+                                 1)
         self.create_subscription(Odometry, 'odom', self.on_odom, 10)
         self.status_timer = None
 
