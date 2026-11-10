@@ -202,7 +202,13 @@ global_costmap:
         scan:
           topic: /scan
           data_type: LaserScan
-          clearing: true
+          # No clearing in the GLOBAL costmap (2026-11-10, robot 7): with a
+          # box in B the robot oscillated between M and G because the box's
+          # marks were cleared once it left the LiDAR's view, so the planner
+          # kept flipping back to the short path. Marks now persist for the
+          # run; go_letters clears this costmap when a run starts. The local
+          # costmap still clears normally.
+          clearing: false
           marking: true
           # REQUIRED: Nav2's per-source default is 0.0, which drops every scan
           # point (the 2D scan plane sits ~9 cm above base_link), leaving the

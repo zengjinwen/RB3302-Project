@@ -60,6 +60,7 @@ from lifecycle_msgs.srv import GetState
 from action_msgs.msg import GoalStatus
 from builtin_interfaces.msg import Duration as DurationMsg
 from nav2_msgs.action import BackUp, ComputePathToPose, NavigateToPose, Spin
+from nav2_msgs.srv import ClearEntireCostmap
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
 from std_srvs.srv import Empty, Trigger
@@ -193,6 +194,11 @@ class GoLetters(Node):
             Trigger, NAV2_ACTIVE_SERVICE)
         self.amcl_state_client = self.create_client(
             GetState, AMCL_STATE_SERVICE)
+        # The global costmap keeps LiDAR marks for the whole run (no
+        # clearing, see nav2_params.yaml), so each run starts from a clean
+        # one.
+        self.clear_global_client = self.create_client(
+            ClearEntireCostmap, 'global_costmap/clear_entirely_global_costmap')
         # Nav2 goals live in Nav2, not here: exiting does not stop the robot
         # unless the active goal is cancelled.
         self.send_future = None
@@ -689,6 +695,12 @@ class GoLetters(Node):
         self.backup_client.wait_for_server(timeout_sec=5.0)
         self.plan_client.wait_for_server(timeout_sec=5.0)
         self.wait_for_nav2_active()
+        if self.clear_global_client.wait_for_service(timeout_sec=2.0):
+            self.call(self.clear_global_client, ClearEntireCostmap.Request())
+            self.get_logger().info('global costmap cleared for this run')
+        else:
+            self.get_logger().warn('could not clear the global costmap; '
+                                   'marks from an earlier run may remain')
 
         # Print commanded vs measured velocity twice a second while driving.
         self.status_timer = self.create_timer(0.5, self.print_status)
