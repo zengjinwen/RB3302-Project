@@ -31,7 +31,8 @@ axis-aligned; see maps/<map>_arena.yaml):
   * a candidate that would cut the current target off on the letter grid
     is ignored (one obstacle must always leave a route), and the run's
     goal squares are never candidates;
-  * a new go_letters run (go_letters/goals) forgets the blocked square.
+  * a new go_letters run (go_letters/goals) forgets the blocked square and
+    clears both costmaps, so an earlier run's marks cannot steer this one.
 
 Watch it:
     ros2 topic echo /blocked_cell
@@ -47,6 +48,7 @@ from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from rclpy.time import Time
 from nav_msgs.msg import OccupancyGrid, Path
+from nav2_msgs.srv import ClearEntireCostmap
 from sensor_msgs.msg import LaserScan, PointCloud2
 from sensor_msgs_py import point_cloud2
 from std_msgs.msg import Header, String
@@ -350,6 +352,13 @@ class CellObstacles(Node):
         self.create_subscription(String, 'go_letters/goals', self.on_goals,
                                  latched)
         self.create_subscription(Path, 'plan', self.on_plan, 10)
+        # Marks already in the costmaps outlive the blocked square, so a new
+        # run wipes both costmaps (the static walls reload by themselves).
+        self.clear_clients = [
+            self.create_client(ClearEntireCostmap,
+                               'global_costmap/clear_entirely_global_costmap'),
+            self.create_client(ClearEntireCostmap,
+                               'local_costmap/clear_entirely_local_costmap')]
         self.create_timer(1.0 / self.cloud_rate, self.publish_cloud)
 
     def on_map(self, msg):
@@ -383,6 +392,12 @@ class CellObstacles(Node):
                else 'no square blocked'))
         self.cell_pub.publish(String(data=''))
         self.reported_unreachable = None
+        for client in self.clear_clients:
+            if client.service_is_ready():
+                client.call_async(ClearEntireCostmap.Request())
+            else:
+                self.get_logger().warn(
+                    f'{client.srv_name} not ready; old marks may linger')
 
     def on_plan(self, msg):
         self.plan_poses = [(p.pose.position.x, p.pose.position.y)
