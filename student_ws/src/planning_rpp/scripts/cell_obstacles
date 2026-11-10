@@ -47,7 +47,7 @@ import yaml
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from rclpy.time import Time
-from nav_msgs.msg import OccupancyGrid, Path
+from nav_msgs.msg import OccupancyGrid, Odometry, Path
 from nav2_msgs.srv import ClearEntireCostmap
 from sensor_msgs.msg import LaserScan, PointCloud2
 from sensor_msgs_py import point_cloud2
@@ -185,6 +185,7 @@ class CellObstacle:
         self.blocked = self.candidate = None
         self.since = self.last_stamp = None
         self.count = 0
+        self.last_surface = {}
         info = map_msg.info
         self.resolution = info.resolution
         self.origin = (info.origin.position.x, info.origin.position.y)
@@ -284,6 +285,12 @@ class CellObstacle:
                 if abs(slope) > math.tan(math.radians(10)) or residual > 0.025:
                     continue
                 matches.append((math.hypot(dx, dy), name))
+                self.last_surface[name] = (
+                    f'{len(surface)} hits, depth {mean_d:+.2f} '
+                    f'(face at {near_face:+.2f}), lateral '
+                    f'{min(across):+.2f}..{max(across):+.2f}, '
+                    f'slope {slope:+.2f}, residual {residual * 100:.1f} cm, '
+                    f'laser at ({laser_a[0]:+.2f}, {laser_a[1]:+.2f})')
                 break
         return [name for _, name in sorted(matches)]
 
@@ -326,6 +333,12 @@ class CellObstacles(Node):
         # square, so the neighbouring squares' centres (where the robot
         # starts or stops, 0.30 m from the edge) are never "occupied".
         self.cell_inset = p('cell_inset', 0.12).value
+        # Scans taken while pivoting faster than this (rad/s) are skipped:
+        # a 125 ms scan smears several degrees and bends flat walls into
+        # "faces" (T and B were falsely confirmed during pivots).
+        self.max_yaw_rate = p('max_yaw_rate', 0.3).value
+        self.yaw_rate = 0.0
+        self.odom_time = None
 
         self.arena = Arena(course_file)
         self.get_logger().info(f'course squares from {course_file}')
@@ -353,6 +366,7 @@ class CellObstacles(Node):
         self.create_subscription(String, 'go_letters/goals', self.on_goals,
                                  latched)
         self.create_subscription(Path, 'plan', self.on_plan, 10)
+        self.create_subscription(Odometry, 'odom', self.on_odom, 10)
         # Marks already in the costmaps outlive the blocked square, so a new
         # run wipes both costmaps (the static walls reload by themselves).
         self.clear_clients = [
@@ -405,6 +419,10 @@ class CellObstacles(Node):
                 self.get_logger().warn(
                     f'{client.srv_name} not ready; old marks may linger')
 
+    def on_odom(self, msg):
+        self.yaw_rate = msg.twist.twist.angular.z
+        self.odom_time = self.get_clock().now()
+
     def on_plan(self, msg):
         self.plan_poses = [(p.pose.position.x, p.pose.position.y)
                            for p in msg.poses]
@@ -440,6 +458,15 @@ class CellObstacles(Node):
         self.last_scan_time = now
         stamp = Time.from_msg(msg.header.stamp)
         if (now - stamp).nanoseconds / 1e9 > 1.0:
+            return
+        if self.odom_time is None or \
+                (now - self.odom_time).nanoseconds / 1e9 > 0.5:
+            self.get_logger().info('scan skipped, no fresh /odom',
+                                   throttle_duration_sec=5.0)
+            return
+        if abs(self.yaw_rate) > self.max_yaw_rate:
+            self.obstacles.candidate = None   # pivoting: restart the count
+            self.obstacles.count = 0
             return
         try:
             # Never project an old scan using a newer robot pose.
@@ -500,7 +527,8 @@ class CellObstacles(Node):
                 f'square {blocked} is blocked'
                 + (f' (replaces {previous})' if previous else '')
                 + ('; it is on the current path, Nav2 will replan'
-                   if on_route else '; not on the current path'))
+                   if on_route else '; not on the current path')
+                + '; face: ' + self.obstacles.last_surface.get(blocked, '?'))
             self.cell_pub.publish(String(data=blocked))
             self.publish_cloud()
 
