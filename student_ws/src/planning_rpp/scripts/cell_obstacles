@@ -365,13 +365,16 @@ class CellObstacles(Node):
         """A new run: remember its goal squares and forget any earlier
         blocked square (the course is reset between runs)."""
         self.goals = msg.data.upper().split()
-        if self.obstacles is not None and self.obstacles.blocked is not None:
-            self.get_logger().info(
-                f'new run {" ".join(self.goals)}: forgetting blocked square '
-                f'{self.obstacles.blocked}')
+        previous = self.obstacles.blocked if self.obstacles else None
+        if self.obstacles is not None:
             self.obstacles.blocked = None
             self.obstacles.candidate = None
-            self.cell_pub.publish(String(data=''))
+            self.obstacles.count = 0
+        self.get_logger().warn(
+            f'new run {" ".join(self.goals)}: '
+            + (f'forgetting blocked square {previous}' if previous
+               else 'no square blocked'))
+        self.cell_pub.publish(String(data=''))
         self.reported_unreachable = None
 
     def on_plan(self, msg):

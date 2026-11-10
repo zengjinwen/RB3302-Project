@@ -400,6 +400,9 @@ class GoLetters(Node):
         self.target_pub.publish(String(data=letter))
 
     def on_blocked_cell(self, msg):
+        if not msg.data:
+            self.get_logger().info('blocked square cleared for this run')
+            return
         self.get_logger().warn(f'square {msg.data} reported blocked'
                                + (f' while heading to {self.target}'
                                   if self.target else ''))
@@ -674,7 +677,6 @@ class GoLetters(Node):
         return False
 
     def run(self, letters, settle=False):
-        self.goals_pub.publish(String(data=' '.join(letters)))
         poses = self.build_poses(letters)
         for letter, p in zip(letters, poses):
             self.get_logger().info(
@@ -750,6 +752,9 @@ def main():
     signal.signal(signal.SIGTERM, node.on_signal)
     try:
         ok = True
+        # Announce this run's goals first: cell_obstacles forgets any square
+        # blocked in an earlier run and never blocks these squares.
+        node.goals_pub.publish(String(data=' '.join(letters)))
         if start is not None:
             node.set_start(*start)
         if letters:
