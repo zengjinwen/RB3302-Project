@@ -10,8 +10,9 @@ Nav2's costmaps already mark the raw scan, so a box standing in a square is
 avoided locally. This node adds the course rule on top of that: an obstacle
 occupies one whole 60 cm square. Once a broad, axis-aligned face is seen
 across the near side of a neighbouring square for several scans in a row,
-the WHOLE square is published as a dense point cloud that both costmaps
-mark (marking only, never clearing). The planner then routes around the
+the square (less a 12 cm margin, which the costmap inflation grows back)
+is published as a dense point cloud that both costmaps mark (marking
+only, never clearing). The planner then routes around the
 square instead of trying to squeeze past the box, and the behaviour tree's
 1 Hz replanning picks the new path up while the robot is driving.
 
@@ -317,6 +318,12 @@ class CellObstacles(Node):
         self.cloud_rate = p('cloud_rate', 5.0).value
         self.point_step = p('point_step', 0.025).value
         self.point_height = p('point_height', 0.10).value
+        # The published square is shrunk by this much on every side. The
+        # costmap's inflation (0.35 m) grows it back past the square's
+        # edges for planning, but the LETHAL core then stays inside the
+        # square, so the neighbouring squares' centres (where the robot
+        # starts or stops, 0.30 m from the edge) are never "occupied".
+        self.cell_inset = p('cell_inset', 0.12).value
 
         self.arena = Arena(course_file)
         self.get_logger().info(f'course squares from {course_file}')
@@ -480,7 +487,8 @@ class CellObstacles(Node):
         if self.obstacles is None or self.obstacles.blocked is None:
             return
         cx, cy = self.arena.points[self.obstacles.blocked]
-        hx, hy = self.arena.cell[0] / 2.0, self.arena.cell[1] / 2.0
+        hx = max(0.05, self.arena.cell[0] / 2.0 - self.cell_inset)
+        hy = max(0.05, self.arena.cell[1] / 2.0 - self.cell_inset)
         nx = max(1, int(round(2 * hx / self.point_step)))
         ny = max(1, int(round(2 * hy / self.point_step)))
         points = []
