@@ -393,6 +393,11 @@ class CellObstacles(Node):
                else 'no square blocked'))
         self.cell_pub.publish(String(data=''))
         self.reported_unreachable = None
+        # The costmaps keep re-marking the LAST cloud they received from
+        # this source, so replace it with an empty one before clearing.
+        self.cloud_pub.publish(point_cloud2.create_cloud_xyz32(
+            Header(frame_id=MAP_FRAME, stamp=self.get_clock().now().to_msg()),
+            []))
         for client in self.clear_clients:
             if client.service_is_ready():
                 client.call_async(ClearEntireCostmap.Request())
@@ -500,7 +505,10 @@ class CellObstacles(Node):
             self.publish_cloud()
 
     def publish_cloud(self):
+        header = Header(frame_id=MAP_FRAME,
+                        stamp=self.get_clock().now().to_msg())
         if self.obstacles is None or self.obstacles.blocked is None:
+            self.cloud_pub.publish(point_cloud2.create_cloud_xyz32(header, []))
             return
         cx, cy = self.arena.points[self.obstacles.blocked]
         hx = max(0.05, self.arena.cell[0] / 2.0 - self.cell_inset)
@@ -513,8 +521,6 @@ class CellObstacles(Node):
                 x, y = self.arena.to_map((cx - hx + 2 * hx * i / nx,
                                           cy - hy + 2 * hy * j / ny))
                 points.append((x, y, self.point_height))
-        header = Header(frame_id=MAP_FRAME,
-                        stamp=self.get_clock().now().to_msg())
         self.cloud_pub.publish(point_cloud2.create_cloud_xyz32(header, points))
 
 
