@@ -1,0 +1,5 @@
+当前正式成功版（原速+开局AMCL收敛）：
+/home/rb3302-7/rb3302_fresh/backups/SUCCESS_RPP_20261111_173648
+源码包：
+/home/rb3302-7/rb3302_fresh/backups/SUCCESS_RPP_20261111_173648.tar.gz
+后续修改不得覆盖本快照。

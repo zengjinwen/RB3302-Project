@@ -1,0 +1,10 @@
+rb3302_navigation:
+  ros__parameters:
+    speed: 0.10
+    turn_speed: 0.40
+    lookahead: 0.20
+    goal_tolerance: 0.05
+    heading_tolerance: 0.06
+    clearance: 0.16
+    obstacle_width: 0.20
+    obstacle_confirm: 0.60

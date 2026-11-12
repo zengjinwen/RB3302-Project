@@ -1,0 +1,47 @@
+RB3302 新版运行命令
+
+代码在 autonomous/，与旧任务控制分开。仿真和实机使用同一套导航与定位。
+先结束旧导航进程，再启动新版。每次只开一套机器人控制。
+参数顺序：sim 或 robot，起点字母，起始朝向，四个目标。
+N=地图+y，E=地图+x；支持 N/NE/E/SE/S/SW/W/NW。
+
+1. 电脑终端：一次传输完整包
+scp ~/rb3302_fresh/rb3302_autonomous.tar.gz ubuntu@192.168.50.7:~/
+
+2. 单独连接机器人
+ssh ubuntu@192.168.50.7
+
+3. 机器人终端：解压；第一次使用这个包时编译硬件接口
+source /opt/ros/jazzy/setup.bash
+tar -xzf ~/rb3302_autonomous.tar.gz -C ~
+cd ~/rb3302_fresh
+sha256sum -c autonomous/TRANSFER.sha256 --quiet
+bash ~/rb3302_fresh/autonomous/setup.sh
+
+setup 只需首次或硬件接口源码变化后运行。只改 autonomous 中的 Python
+或参数文件，重新传输、解压即可，不用重装依赖，也不用再次 colcon build。
+若依赖缺失，setup 会列出缺项。Python 依赖为 numpy、yaml、serial。
+
+4. 机器人终端：示例，从右下 X 开始，朝 N，执行 X → O → Q → X
+bash ~/rb3302_fresh/autonomous/run.sh robot X N X,O,Q,X
+
+这一个启动命令包含底盘、传感器、EKF、AMCL、规划、控制和任务。
+Ctrl+C 结束本次启动。目标必须填四个；起点与朝向应与实际摆放一致。
+
+5. 电脑另一个终端：RViz
+bash ~/rb3302_fresh/autonomous/rviz.sh
+
+显示地图、雷达、AMCL 粒子、global/local costmap、规划路径。
+电脑与机器人应在同一网络。RViz 只用于显示，不是另一个控制程序。
+
+6. 电脑：Gazebo 示例（不连接机器人）
+bash ~/rb3302_fresh/autonomous/run.sh sim X N X,O,Q,X
+
+有障碍示例：
+SIM_OBSTACLE=Q bash ~/rb3302_fresh/autonomous/run.sh sim X N X,P,G,X
+
+复现六组仿真测试：
+bash ~/rb3302_fresh/autonomous/test.sh
+
+测试结果见 evidence/RESULTS.txt，轨迹图见 evidence/trajectories.png。
+仿真通过情况与实际到点误差如实记录；不代表实机已验证。

@@ -1,0 +1,10 @@
+{"event": "MISSION START", "time": 1.44}
+{"event": "TARGET X", "time": 1.495}
+{"event": "GOAL X", "time": 1.495}
+{"event": "TARGET P", "time": 4.51}
+{"event": "GOAL P", "time": 15.42}
+{"event": "TARGET G", "time": 18.5}
+{"event": "GOAL G", "time": 90.26}
+{"event": "TARGET X", "time": 93.39}
+{"event": "GOAL X", "time": 149.41}
+{"event": "MISSION COMPLETE", "time": 152.455}

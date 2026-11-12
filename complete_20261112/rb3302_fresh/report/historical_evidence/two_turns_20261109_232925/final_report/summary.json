@@ -1,0 +1,28 @@
+[
+  {
+    "case": "feedback_obstacle",
+    "elapsed_seconds": 91.05,
+    "completed": true,
+    "collision_frames": 0,
+    "maximum_goal_error_m": 0.08644943936605941,
+    "false_blocked_cells": [],
+    "detected_actual_obstacle": true,
+    "within_180_seconds": true,
+    "base_checks_passed": true,
+    "source": "/home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_232925/feedback_obstacle",
+    "overall_passed": true
+  },
+  {
+    "case": "rpp_obstacle",
+    "elapsed_seconds": 67.955,
+    "completed": true,
+    "collision_frames": 0,
+    "maximum_goal_error_m": 0.07551057807656036,
+    "false_blocked_cells": [],
+    "detected_actual_obstacle": true,
+    "within_180_seconds": true,
+    "base_checks_passed": true,
+    "source": "/home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_232925/rpp_obstacle",
+    "overall_passed": true
+  }
+]

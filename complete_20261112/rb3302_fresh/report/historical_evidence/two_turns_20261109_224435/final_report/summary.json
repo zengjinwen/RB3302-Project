@@ -1,0 +1,60 @@
+[
+  {
+    "case": "feedback_clear",
+    "elapsed_seconds": 151.01500000000001,
+    "completed": true,
+    "collision_frames": 0,
+    "maximum_goal_error_m": 0.06731796389024002,
+    "false_blocked_cells": [],
+    "detected_actual_obstacle": null,
+    "within_180_seconds": true,
+    "base_checks_passed": true,
+    "source": "/home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_224435/feedback_clear",
+    "overall_passed": true
+  },
+  {
+    "case": "rpp_clear",
+    "elapsed_seconds": 95.78,
+    "completed": true,
+    "collision_frames": 0,
+    "maximum_goal_error_m": 0.07226960117543499,
+    "false_blocked_cells": [],
+    "detected_actual_obstacle": null,
+    "within_180_seconds": true,
+    "base_checks_passed": true,
+    "source": "/home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_230437/rpp_clear",
+    "overall_passed": true
+  },
+  {
+    "case": "feedback_obstacle",
+    "elapsed_seconds": 205.835,
+    "completed": true,
+    "collision_frames": 0,
+    "maximum_goal_error_m": 0.0748598510323883,
+    "false_blocked_cells": [
+      "J",
+      "R"
+    ],
+    "detected_actual_obstacle": true,
+    "within_180_seconds": false,
+    "base_checks_passed": false,
+    "source": "/home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_224435/feedback_obstacle",
+    "overall_passed": false
+  },
+  {
+    "case": "rpp_obstacle",
+    "elapsed_seconds": 194.785,
+    "completed": true,
+    "collision_frames": 0,
+    "maximum_goal_error_m": 0.04188995154534096,
+    "false_blocked_cells": [
+      "J",
+      "V"
+    ],
+    "detected_actual_obstacle": true,
+    "within_180_seconds": false,
+    "base_checks_passed": false,
+    "source": "/home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_224435/rpp_obstacle",
+    "overall_passed": false
+  }
+]

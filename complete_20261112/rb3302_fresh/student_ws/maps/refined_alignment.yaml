@@ -1,0 +1,13 @@
+source_pgm: /home/rb3302-7/RB3302_maps/rb3302_refined.pgm
+source_yaml: /home/rb3302-7/RB3302_maps/rb3302_refined.yaml
+rotation_radians: -1.5707963267948966
+translation:
+- 0.2899999999999996
+- 1.638
+description: Rigid 90-degree clockwise rotation, no scaling or smoothing. Outer-wall
+  centre aligned to (1.8,1.2).
+outer_wall_centre_bounds:
+- -0.050000000000000266
+- -2.220446049250313e-16
+- 3.6499999999999995
+- 2.4000000000000004

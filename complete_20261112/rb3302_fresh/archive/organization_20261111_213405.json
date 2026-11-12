@@ -1,0 +1,602 @@
+[
+  {
+    "old": "rb3302_autonomous.tar.gz",
+    "new": "archive/packages/rb3302_autonomous.tar.gz"
+  },
+  {
+    "old": "rb3302_versions.tar.gz",
+    "new": "archive/packages/rb3302_versions.tar.gz"
+  },
+  {
+    "old": "rb3302_legacy.tar.gz",
+    "new": "archive/packages/rb3302_legacy.tar.gz"
+  },
+  {
+    "old": "rb3302_clean.tar.gz",
+    "new": "archive/packages/rb3302_clean.tar.gz"
+  },
+  {
+    "old": "CODE_REVIEW_20261111.txt",
+    "new": "archive/historical_docs/CODE_REVIEW_20261111.txt"
+  },
+  {
+    "old": "COMPARE_CLI.txt",
+    "new": "archive/historical_docs/COMPARE_CLI.txt"
+  },
+  {
+    "old": "CONTROLLER_TRIALS.txt",
+    "new": "archive/historical_docs/CONTROLLER_TRIALS.txt"
+  },
+  {
+    "old": "LEGACY_TURN_FIX.txt",
+    "new": "archive/historical_docs/LEGACY_TURN_FIX.txt"
+  },
+  {
+    "old": "TRANSFER_MANIFEST.sha256",
+    "new": "archive/historical_docs/TRANSFER_MANIFEST.sha256"
+  },
+  {
+    "old": "TWO_TURN_VERSIONS.txt",
+    "new": "archive/historical_docs/TWO_TURN_VERSIONS.txt"
+  },
+  {
+    "old": "VERSIONS.sha256",
+    "new": "archive/historical_docs/VERSIONS.sha256"
+  },
+  {
+    "old": "imulation locksn.domain_*.lockn' >> .gitignore",
+    "new": "archive/misc/imulation locksn.domain_*.lockn' >> .gitignore"
+  },
+  {
+    "old": "backups/before_stanley_straight_20261103_172046",
+    "new": "backups/history/before_stanley_straight_20261103_172046"
+  },
+  {
+    "old": "backups/verified_full_XUNX_20261105_151107",
+    "new": "backups/history/verified_full_XUNX_20261105_151107"
+  },
+  {
+    "old": "backups/before_amcl_latency_20261111_163216",
+    "new": "backups/history/before_amcl_latency_20261111_163216"
+  },
+  {
+    "old": "backups/before_approach_slowdown_20261105_131553",
+    "new": "backups/history/before_approach_slowdown_20261105_131553"
+  },
+  {
+    "old": "backups/before_stop_diagnostics_20261105_142943",
+    "new": "backups/history/before_stop_diagnostics_20261105_142943"
+  },
+  {
+    "old": "backups/weighted_distance_20261026_174026",
+    "new": "backups/history/weighted_distance_20261026_174026"
+  },
+  {
+    "old": "backups/before_original_amcl_20261111_163249",
+    "new": "backups/history/before_original_amcl_20261111_163249"
+  },
+  {
+    "old": "backups/before_exact_success_copy_20261102_170227",
+    "new": "backups/history/before_exact_success_copy_20261102_170227"
+  },
+  {
+    "old": "backups/before_cardinal_stanley_20261103_173614",
+    "new": "backups/history/before_cardinal_stanley_20261103_173614"
+  },
+  {
+    "old": "backups/three_controllers_20261102_150926",
+    "new": "backups/history/three_controllers_20261102_150926"
+  },
+  {
+    "old": "backups/before_faster_goal_20261110_172307",
+    "new": "backups/history/before_faster_goal_20261110_172307"
+  },
+  {
+    "old": "backups/verified_center15mm_before_obstacle20cm_20261106_132958",
+    "new": "backups/history/verified_center15mm_before_obstacle20cm_20261106_132958"
+  },
+  {
+    "old": "backups/before_v2_heading_fix_20261111_151452",
+    "new": "backups/history/before_v2_heading_fix_20261111_151452"
+  },
+  {
+    "old": "backups/before_adjacent_20261105_161858",
+    "new": "backups/history/before_adjacent_20261105_161858"
+  },
+  {
+    "old": "backups/before_imu_stream_fix_20261106_125010",
+    "new": "backups/history/before_imu_stream_fix_20261106_125010"
+  },
+  {
+    "old": "backups/before_four_neighbors_20261105_162542",
+    "new": "backups/history/before_four_neighbors_20261105_162542"
+  },
+  {
+    "old": "backups/before_smooth_rpp_20261110_134207",
+    "new": "backups/history/before_smooth_rpp_20261110_134207"
+  },
+  {
+    "old": "backups/before_full_review_20261111_151638",
+    "new": "backups/history/before_full_review_20261111_151638"
+  },
+  {
+    "old": "backups/amcl_reverse_20261026_175517",
+    "new": "backups/history/amcl_reverse_20261026_175517"
+  },
+  {
+    "old": "backups/before_radius20_20261111_143705",
+    "new": "backups/history/before_radius20_20261111_143705"
+  },
+  {
+    "old": "backups/before_rpp_original_speed_20261111_172320",
+    "new": "backups/history/before_rpp_original_speed_20261111_172320"
+  },
+  {
+    "old": "backups/before_full_turn_angle_20261105_152216",
+    "new": "backups/history/before_full_turn_angle_20261105_152216"
+  },
+  {
+    "old": "backups/clear_control_20261026_144935",
+    "new": "backups/history/clear_control_20261026_144935"
+  },
+  {
+    "old": "backups/before_normal_goal_20261110_173936",
+    "new": "backups/history/before_normal_goal_20261110_173936"
+  },
+  {
+    "old": "backups/before_corner_5cm_20261105_122343",
+    "new": "backups/history/before_corner_5cm_20261105_122343"
+  },
+  {
+    "old": "backups/before_speed_fix_20261103_152900",
+    "new": "backups/history/before_speed_fix_20261103_152900"
+  },
+  {
+    "old": "backups/scan_updates_20261026_161343",
+    "new": "backups/history/scan_updates_20261026_161343"
+  },
+  {
+    "old": "backups/navigation_settings_20261023_143807",
+    "new": "backups/history/navigation_settings_20261023_143807"
+  },
+  {
+    "old": "backups/before_goal_rpp_20261110_135242",
+    "new": "backups/history/before_goal_rpp_20261110_135242"
+  },
+  {
+    "old": "backups/goal_only_20261028_142410",
+    "new": "backups/history/goal_only_20261028_142410"
+  },
+  {
+    "old": "backups/obstacle_lookahead_20261028_161808",
+    "new": "backups/history/obstacle_lookahead_20261028_161808"
+  },
+  {
+    "old": "backups/before_tracking_speed_20261110_175854",
+    "new": "backups/history/before_tracking_speed_20261110_175854"
+  },
+  {
+    "old": "backups/before_stronger_arc_20261105_141351",
+    "new": "backups/history/before_stronger_arc_20261105_141351"
+  },
+  {
+    "old": "backups/forward_only_20261028_142102",
+    "new": "backups/history/forward_only_20261028_142102"
+  },
+  {
+    "old": "backups/before_restore_20261028_160144",
+    "new": "backups/history/before_restore_20261028_160144"
+  },
+  {
+    "old": "backups/before_pid_stanley_20261105_121013",
+    "new": "backups/history/before_pid_stanley_20261105_121013"
+  },
+  {
+    "old": "backups/before_unify_obstacle_20261110_163314",
+    "new": "backups/history/before_unify_obstacle_20261110_163314"
+  },
+  {
+    "old": "backups/remove_legacy_20261026_163536",
+    "new": "backups/history/remove_legacy_20261026_163536"
+  },
+  {
+    "old": "backups/allow_controller_turns_20261102_152041",
+    "new": "backups/history/allow_controller_turns_20261102_152041"
+  },
+  {
+    "old": "backups/before_speed_times15_20261106_134949",
+    "new": "backups/history/before_speed_times15_20261106_134949"
+  },
+  {
+    "old": "backups/before_arc_motion_20261105_134624",
+    "new": "backups/history/before_arc_motion_20261105_134624"
+  },
+  {
+    "old": "backups/before_goal_alignment_20261110_135058",
+    "new": "backups/history/before_goal_alignment_20261110_135058"
+  },
+  {
+    "old": "backups/before_wall_margin_wait_20261105_162433",
+    "new": "backups/history/before_wall_margin_wait_20261105_162433"
+  },
+  {
+    "old": "backups/verified_center_lidar_forward_20261105_145306",
+    "new": "backups/history/verified_center_lidar_forward_20261105_145306"
+  },
+  {
+    "old": "backups/before_restore_turn15_20261105_170334",
+    "new": "backups/history/before_restore_turn15_20261105_170334"
+  },
+  {
+    "old": "backups/continuous_localization_20261023_164836",
+    "new": "backups/history/continuous_localization_20261023_164836"
+  },
+  {
+    "old": "backups/before_single_goal_pass_20261110_172425",
+    "new": "backups/history/before_single_goal_pass_20261110_172425"
+  },
+  {
+    "old": "backups/before_grid_obstacle_20261105_152036",
+    "new": "backups/history/before_grid_obstacle_20261105_152036"
+  },
+  {
+    "old": "backups/signed_motion_20261026_180747",
+    "new": "backups/history/signed_motion_20261026_180747"
+  },
+  {
+    "old": "backups/only_corner_10cm_20261028_160337",
+    "new": "backups/history/only_corner_10cm_20261028_160337"
+  },
+  {
+    "old": "backups/cell_obstacles_20261102_154741",
+    "new": "backups/history/cell_obstacles_20261102_154741"
+  },
+  {
+    "old": "backups/before_continuous_pose_20261105_122648",
+    "new": "backups/history/before_continuous_pose_20261105_122648"
+  },
+  {
+    "old": "backups/localization_arrival_20261026_153342",
+    "new": "backups/history/localization_arrival_20261026_153342"
+  },
+  {
+    "old": "backups/before_lidar_forward15mm_20261106_131904",
+    "new": "backups/history/before_lidar_forward15mm_20261106_131904"
+  },
+  {
+    "old": "backups/continuous_turn_20261026_142733",
+    "new": "backups/history/continuous_turn_20261026_142733"
+  },
+  {
+    "old": "backups/simplified_one_terminal_20261026_143731",
+    "new": "backups/history/simplified_one_terminal_20261026_143731"
+  },
+  {
+    "old": "backups/direct_wheel_turn_20261023_165321",
+    "new": "backups/history/direct_wheel_turn_20261023_165321"
+  },
+  {
+    "old": "backups/smooth_motion_20261026_171506",
+    "new": "backups/history/smooth_motion_20261026_171506"
+  },
+  {
+    "old": "backups/new_obstacles_only_20261102_171121",
+    "new": "backups/history/new_obstacles_only_20261102_171121"
+  },
+  {
+    "old": "backups/before_speed_trial_20261106_133621",
+    "new": "backups/history/before_speed_trial_20261106_133621"
+  },
+  {
+    "old": "backups/before_native_turn_20261105_134350",
+    "new": "backups/history/before_native_turn_20261105_134350"
+  },
+  {
+    "old": "backups/before_near_face_20261105_163613",
+    "new": "backups/history/before_near_face_20261105_163613"
+  },
+  {
+    "old": "backups/before_goal_hold_only_20261110_174736",
+    "new": "backups/history/before_goal_hold_only_20261110_174736"
+  },
+  {
+    "old": "backups/before_replan_centre_20261105_154035",
+    "new": "backups/history/before_replan_centre_20261105_154035"
+  },
+  {
+    "old": "backups/direct_corner_20261026_161343",
+    "new": "backups/history/direct_corner_20261026_161343"
+  },
+  {
+    "old": "backups/timed_turn_20261102_171706",
+    "new": "backups/history/timed_turn_20261102_171706"
+  },
+  {
+    "old": "backups/coarse_grid_20261026_163303",
+    "new": "backups/history/coarse_grid_20261026_163303"
+  },
+  {
+    "old": "backups/code_review_20261026_140026",
+    "new": "backups/history/code_review_20261026_140026"
+  },
+  {
+    "old": "backups/restore_inplace_default_20261105_142415",
+    "new": "backups/history/restore_inplace_default_20261105_142415"
+  },
+  {
+    "old": "backups/before_remove_turn_min_20261106_135118",
+    "new": "backups/history/before_remove_turn_min_20261106_135118"
+  },
+  {
+    "old": "backups/before_localization_density_20261105_124707",
+    "new": "backups/history/before_localization_density_20261105_124707"
+  },
+  {
+    "old": "backups/before_grid58_20261105_125929",
+    "new": "backups/history/before_grid58_20261105_125929"
+  },
+  {
+    "old": "backups/single_roadblock_20261028_150936",
+    "new": "backups/history/single_roadblock_20261028_150936"
+  },
+  {
+    "old": "backups/disable_obstacles_20261102_164949",
+    "new": "backups/history/disable_obstacles_20261102_164949"
+  },
+  {
+    "old": "backups/before_continuous_obstacles_20261106_133305",
+    "new": "backups/history/before_continuous_obstacles_20261106_133305"
+  },
+  {
+    "old": "backups/before_goal_cell_rpp_20261111_160148",
+    "new": "backups/history/before_goal_cell_rpp_20261111_160148"
+  },
+  {
+    "old": "backups/before_two_turn_versions_20261109_223644",
+    "new": "backups/history/before_two_turn_versions_20261109_223644"
+  },
+  {
+    "old": "backups/before_lookahead5_20261111_145453",
+    "new": "backups/history/before_lookahead5_20261111_145453"
+  },
+  {
+    "old": "backups/before_early_turn_20261103_171134",
+    "new": "backups/history/before_early_turn_20261103_171134"
+  },
+  {
+    "old": "backups/arrival_20261028_152124",
+    "new": "backups/history/arrival_20261028_152124"
+  },
+  {
+    "old": "backups/turn_five_seconds_20261102_171506",
+    "new": "backups/history/turn_five_seconds_20261102_171506"
+  },
+  {
+    "old": "backups/turn_settle_20261028_155405",
+    "new": "backups/history/turn_settle_20261028_155405"
+  },
+  {
+    "old": "backups/github_setup",
+    "new": "backups/history/github_setup"
+  },
+  {
+    "old": "backups/removed_turn_guard_20261106_124619",
+    "new": "backups/history/removed_turn_guard_20261106_124619"
+  },
+  {
+    "old": "backups/before_amcl_turn_20261103_153829",
+    "new": "backups/history/before_amcl_turn_20261103_153829"
+  },
+  {
+    "old": "backups/before_uniform_points_20261103_170714",
+    "new": "backups/history/before_uniform_points_20261103_170714"
+  },
+  {
+    "old": "backups/before_restore_radius29_20261111_162148",
+    "new": "backups/history/before_restore_radius29_20261111_162148"
+  },
+  {
+    "old": "backups/before_restore_straight_gains_20261111_163332",
+    "new": "backups/history/before_restore_straight_gains_20261111_163332"
+  },
+  {
+    "old": "backups/before_turn_guard_20261105_171901",
+    "new": "backups/history/before_turn_guard_20261105_171901"
+  },
+  {
+    "old": "backups/review_fixes_20261028_140048",
+    "new": "backups/history/review_fixes_20261028_140048"
+  },
+  {
+    "old": "backups/before_goal_settle_20261110_144636",
+    "new": "backups/history/before_goal_settle_20261110_144636"
+  },
+  {
+    "old": "backups/relative_turn_20261026_162500",
+    "new": "backups/history/relative_turn_20261026_162500"
+  },
+  {
+    "old": "backups/refined_map_switch_20261026_135629",
+    "new": "backups/history/refined_map_switch_20261026_135629"
+  },
+  {
+    "old": "backups/before_straight_speed2_20261111_172735",
+    "new": "backups/history/before_straight_speed2_20261111_172735"
+  },
+  {
+    "old": "backups/before_turn_goal_speed_20261106_134430",
+    "new": "backups/history/before_turn_goal_speed_20261106_134430"
+  },
+  {
+    "old": "backups/amcl_arrival_20261023_172119",
+    "new": "backups/history/amcl_arrival_20261023_172119"
+  },
+  {
+    "old": "backups/corner_extension_20261028_154507",
+    "new": "backups/history/corner_extension_20261028_154507"
+  },
+  {
+    "old": "backups/costmap_view_20261102_170301",
+    "new": "backups/history/costmap_view_20261102_170301"
+  },
+  {
+    "old": "backups/compass_yaml_20261028_143539",
+    "new": "backups/history/compass_yaml_20261028_143539"
+  },
+  {
+    "old": "backups/obstacle_replan_20261028_145601",
+    "new": "backups/history/obstacle_replan_20261028_145601"
+  },
+  {
+    "old": "backups/before_grid_control_20261023_161231",
+    "new": "backups/history/before_grid_control_20261023_161231"
+  },
+  {
+    "old": "backups/measured_timed_turn_20261102_172231",
+    "new": "backups/history/measured_timed_turn_20261102_172231"
+  },
+  {
+    "old": "backups/before_simple_motion_20261103_150758",
+    "new": "backups/history/before_simple_motion_20261103_150758"
+  },
+  {
+    "old": "backups/before_axis_obstacle_20261105_160512",
+    "new": "backups/history/before_axis_obstacle_20261105_160512"
+  },
+  {
+    "old": "backups/before_start_settle_speed15_20261111_170847",
+    "new": "backups/history/before_start_settle_speed15_20261111_170847"
+  },
+  {
+    "old": "backups/before_inplace_goal_only_slowdown_20261105_142658",
+    "new": "backups/history/before_inplace_goal_only_slowdown_20261105_142658"
+  },
+  {
+    "old": "backups/bidirectional_20261026_171927",
+    "new": "backups/history/bidirectional_20261026_171927"
+  },
+  {
+    "old": "backups/before_experiment_wall_filter_20261109_231417",
+    "new": "backups/history/before_experiment_wall_filter_20261109_231417"
+  },
+  {
+    "old": "backups/brief_delay_20261026_155221",
+    "new": "backups/history/brief_delay_20261026_155221"
+  },
+  {
+    "old": "backups/before_revert_lookahead_20261028_161925",
+    "new": "backups/history/before_revert_lookahead_20261028_161925"
+  },
+  {
+    "old": "backups/obstacle_switch_20261102_162359",
+    "new": "backups/history/obstacle_switch_20261102_162359"
+  },
+  {
+    "old": "backups/route_corners_20261026_163848",
+    "new": "backups/history/route_corners_20261026_163848"
+  },
+  {
+    "old": "backups/before_remove_error_wait_20261103_165428",
+    "new": "backups/history/before_remove_error_wait_20261103_165428"
+  },
+  {
+    "old": "backups/before_goal_center_20261103_170830",
+    "new": "backups/history/before_goal_center_20261103_170830"
+  },
+  {
+    "old": "backups/before_remove_corner_extension_20261105_132339",
+    "new": "backups/history/before_remove_corner_extension_20261105_132339"
+  },
+  {
+    "old": "backups/before_restore_all_original_speed_20261111_173605",
+    "new": "backups/history/before_restore_all_original_speed_20261111_173605"
+  },
+  {
+    "old": "backups/simplify_navigation_20261102_160510",
+    "new": "backups/history/simplify_navigation_20261102_160510"
+  },
+  {
+    "old": "backups/SUCCESS_RPP_20261111_165943 (2)",
+    "new": "backups/history/SUCCESS_RPP_20261111_165943 (2)"
+  },
+  {
+    "old": "backups/before_quarter_circle_20261110_143823",
+    "new": "backups/history/before_quarter_circle_20261110_143823"
+  },
+  {
+    "old": "backups/before_return_radius20_20261111_163312",
+    "new": "backups/history/before_return_radius20_20261111_163312"
+  },
+  {
+    "old": "backups/before_imu_turn_20261103_144722",
+    "new": "backups/history/before_imu_turn_20261103_144722"
+  },
+  {
+    "old": "backups/goal_slowdown_20261102_160819",
+    "new": "backups/history/goal_slowdown_20261102_160819"
+  },
+  {
+    "old": "backups/before_lidar_forward_offset_20261105_144331",
+    "new": "backups/history/before_lidar_forward_offset_20261105_144331"
+  },
+  {
+    "old": "backups/before_keep_alive_20261103_153829",
+    "new": "backups/history/before_keep_alive_20261103_153829"
+  },
+  {
+    "old": "backups/before_speed_016_120_20261106_134641",
+    "new": "backups/history/before_speed_016_120_20261106_134641"
+  },
+  {
+    "old": "backups/before_original_quarter_rpp_20261111_163425",
+    "new": "backups/history/before_original_quarter_rpp_20261111_163425"
+  },
+  {
+    "old": "backups/fine_grid_20261023_172119",
+    "new": "backups/history/fine_grid_20261023_172119"
+  },
+  {
+    "old": "backups/before_goal_only_slowdown_20261105_140024",
+    "new": "backups/history/before_goal_only_slowdown_20261105_140024"
+  },
+  {
+    "old": "backups/successful_motion_obstacles_only_20261102_164830",
+    "new": "backups/history/successful_motion_obstacles_only_20261102_164830"
+  },
+  {
+    "old": "backups/before_clean_active_20261103_155038",
+    "new": "backups/history/before_clean_active_20261103_155038"
+  },
+  {
+    "old": "backups/before_wall_turn17_20261105_153456",
+    "new": "backups/history/before_wall_turn17_20261105_153456"
+  },
+  {
+    "old": "backups/before_straight_control_20261103_171914",
+    "new": "backups/history/before_straight_control_20261103_171914"
+  },
+  {
+    "old": "backups/area_lateral_20261102_162653",
+    "new": "backups/history/area_lateral_20261102_162653"
+  },
+  {
+    "old": "backups/before_antonio_amcl_20261111_163538",
+    "new": "backups/history/before_antonio_amcl_20261111_163538"
+  },
+  {
+    "old": "backups/before_lookahead10_20261111_150132",
+    "new": "backups/history/before_lookahead10_20261111_150132"
+  },
+  {
+    "old": "backups/verified_good_motion_obstacle_20261106_130538",
+    "new": "backups/history/verified_good_motion_obstacle_20261106_130538"
+  },
+  {
+    "old": "DEVELOPMENT_HISTORY.txt",
+    "new": "report/DEVELOPMENT_HISTORY.txt"
+  },
+  {
+    "old": "report_evidence",
+    "new": "report/historical_evidence"
+  }
+]

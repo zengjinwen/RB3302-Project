@@ -1,0 +1,12 @@
+{"event": "INITIAL ALIGNMENT x=0.355 y=2.065 yaw=-79.5 residual=0.008", "time": 1.2}
+{"event": "MISSION START", "time": 1.2}
+{"event": "TARGET F", "time": 2.0}
+{"event": "TARGET F", "time": 2.6}
+{"event": "GOAL F error=0.024m", "time": 25.8}
+{"event": "TARGET C", "time": 28.8}
+{"event": "GOAL C error=0.015m", "time": 50.0}
+{"event": "TARGET S", "time": 53.0}
+{"event": "GOAL S error=0.027m", "time": 77.101}
+{"event": "TARGET A", "time": 80.2}
+{"event": "GOAL A error=0.032m", "time": 96.1}
+{"event": "MISSION COMPLETE elapsed=97.90s", "time": 99.1}

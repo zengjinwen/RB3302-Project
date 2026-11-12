@@ -1,0 +1,293 @@
+{
+  "completed": true,
+  "elapsed_sim_seconds": 95.78,
+  "goals": [
+    {
+      "event": "GOAL X",
+      "time": 1.195,
+      "truth": [
+        1.19,
+        3.1900170790550413,
+        0.29,
+        1.5707963267949063,
+        -4.8572045569113785e-20,
+        -5.300810663252579e-06,
+        0.0
+      ],
+      "true_goal_error": 1.7079055041335778e-05,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL P",
+      "time": 12.4,
+      "truth": [
+        12.39,
+        2.0544911028320247,
+        0.9379932433123146,
+        -3.029908292374755,
+        0.07361656607062989,
+        -0.0037334665561772153,
+        0.05711479851774308
+      ],
+      "true_goal_error": 0.07226960117543499,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL G",
+      "time": 31.24,
+      "truth": [
+        31.255,
+        0.2717248619540023,
+        1.4873751531573176,
+        -1.4655924693168023,
+        0.058114391654039144,
+        -0.0003390603557851415,
+        0.018726306035115443
+      ],
+      "true_goal_error": 0.04160387895537174,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL X",
+      "time": 92.77,
+      "truth": [
+        92.785,
+        3.20520799328105,
+        0.32283447495592876,
+        0.003111922972180536,
+        0.05951991427625865,
+        7.654184076835804e-06,
+        -0.0007357593169040564
+      ],
+      "true_goal_error": 0.03618543636973275,
+      "centre_under_body": true
+    }
+  ],
+  "events": [
+    {
+      "event": "MISSION START",
+      "time": 0.0,
+      "truth": [
+        0.035,
+        3.1899980792534657,
+        0.29,
+        1.5707963267948968,
+        9.666666666666638,
+        -106.33400021885564,
+        52.359877144873714
+      ]
+    },
+    {
+      "event": "TARGET X",
+      "time": 1.195,
+      "truth": [
+        1.19,
+        3.1900170790550413,
+        0.29,
+        1.5707963267949063,
+        -4.8572045569113785e-20,
+        -5.300810663252579e-06,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 1.195,
+      "truth": [
+        1.19,
+        3.1900170790550413,
+        0.29,
+        1.5707963267949063,
+        -4.8572045569113785e-20,
+        -5.300810663252579e-06,
+        0.0
+      ],
+      "true_goal_error": 1.7079055041335778e-05,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET P",
+      "time": 4.265,
+      "truth": [
+        4.27,
+        3.190019089969966,
+        0.29,
+        1.5707963267949223,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL P",
+      "time": 12.4,
+      "truth": [
+        12.39,
+        2.0544911028320247,
+        0.9379932433123146,
+        -3.029908292374755,
+        0.07361656607062989,
+        -0.0037334665561772153,
+        0.05711479851774308
+      ],
+      "true_goal_error": 0.07226960117543499,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET G",
+      "time": 15.41,
+      "truth": [
+        15.4,
+        2.0532268563495175,
+        0.9379270333295426,
+        -3.0287457130118,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL G",
+      "time": 31.24,
+      "truth": [
+        31.255,
+        0.2717248619540023,
+        1.4873751531573176,
+        -1.4655924693168023,
+        0.058114391654039144,
+        -0.0003390603557851415,
+        0.018726306035115443
+      ],
+      "true_goal_error": 0.04160387895537174,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET X",
+      "time": 34.265,
+      "truth": [
+        34.265,
+        0.27172841972766487,
+        1.4873414606323847,
+        -1.465592469316777,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 92.77,
+      "truth": [
+        92.785,
+        3.20520799328105,
+        0.32283447495592876,
+        0.003111922972180536,
+        0.05951991427625865,
+        7.654184076835804e-06,
+        -0.0007357593169040564
+      ],
+      "true_goal_error": 0.03618543636973275,
+      "centre_under_body": true
+    },
+    {
+      "event": "MISSION COMPLETE",
+      "time": 95.78,
+      "truth": [
+        95.76,
+        3.2052419286314353,
+        0.3228345805625862,
+        0.0031119229721811906,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "holds": [
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 2.010914924799323e-06
+    },
+    {
+      "goal": "P",
+      "duration": 3.0,
+      "max_translation": 0.0012659790402493065
+    },
+    {
+      "goal": "G",
+      "duration": 3.0,
+      "max_translation": 3.3879846366069025e-05
+    },
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 3.393551470863987e-05
+    }
+  ],
+  "collision_frames": 0,
+  "obstacle_seen_in_costmap": false,
+  "plans": 0,
+  "amcl_position_rmse": 0.052104433559320505,
+  "amcl_yaw_rmse_deg": 0.9666200105560018,
+  "topic_audit": {
+    "/sim/ground_truth": {
+      "publishers": [
+        "ros_gz_bridge"
+      ],
+      "subscribers": [
+        "autonomous_evidence"
+      ]
+    },
+    "/scan": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "amcl",
+        "rb3302_mission",
+        "autonomous_evidence"
+      ]
+    },
+    "/odom/raw": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "ekf_filter_node"
+      ]
+    },
+    "/odom": {
+      "publishers": [
+        "ekf_filter_node"
+      ],
+      "subscribers": [
+        "rb3302_mission"
+      ]
+    },
+    "/amcl_pose": {
+      "publishers": [
+        "amcl"
+      ],
+      "subscribers": [
+        "rb3302_mission",
+        "autonomous_evidence"
+      ]
+    },
+    "/cmd_vel": {
+      "publishers": [
+        "rb3302_mission"
+      ],
+      "subscribers": [
+        "sim_hardware",
+        "autonomous_evidence"
+      ]
+    },
+    "/cmd_vel_nav": {
+      "publishers": [],
+      "subscribers": []
+    }
+  },
+  "passed": true,
+  "turns": []
+}

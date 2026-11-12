@@ -1,0 +1,12 @@
+[
+  {
+    "passed": true,
+    "completed": true,
+    "elapsed_sim_seconds": 74.865,
+    "collision_frames": 0,
+    "amcl_position_rmse": 0.05086496464522167,
+    "obstacle_seen_in_costmap": true,
+    "case": "rpp_obstacle",
+    "wall_seconds": 80.31
+  }
+]

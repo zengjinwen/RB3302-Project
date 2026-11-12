@@ -1,0 +1,16 @@
+项目目录
+
+student_ws/、robot_ws/：工作代码、地图、ROS编译环境，未移动。
+backups/SUCCESS_RPP_20261111_173648/：当前只读成功版及同名压缩包。
+report/：开发历史、实机日志、历史测试、图表及报告草稿。
+archive/：旧压缩包、旧说明、异常命名文件。
+backups/history/：旧版本备份，保留未删除。
+autonomous/、clean/、sim/：旧实验实现与仿真；与旧脚本互相引用，保留原位。
+
+当前运行入口run_corner_rpp.sh；显示入口rviz.sh。run_successful.sh是更早的旧版本入口，不代表当前成功版。所有根目录脚本和代码内容未改。
+注意：先前将整个项目从~/rb3302_fresh移入~/D/rb3302_fresh且移除软链接后，本地旧build/install和硬编码绝对路径可能失效；此次仅整理资料，未重建或修复这些路径。机器人目录未移动。
+整理记录位于archive/organization_*.json；未删除历史资料，未创建软链接。
+
+启动脚本已归入scripts/，目录说明归入docs/。当前入口scripts/run_corner_rpp.sh，显示入口scripts/rviz.sh。本机工作脚本已调整项目根目录查找方式；此前搬迁造成的旧build/install绝对路径仍需重建处理。机器人和锁存成功版均未改动，仍沿用旧入口。
+
+最新调整：项目已移回~/rb3302_fresh，D层已取消；所有启动脚本恢复到项目顶层，之前的CLI可以继续使用。前述scripts入口与D路径说明已被此条替代。机器人及只读成功版未修改。

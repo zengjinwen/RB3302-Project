@@ -1,0 +1,12 @@
+{
+  "passed": false,
+  "completed": false,
+  "reason": "No evaluation result",
+  "case": {
+    "name": "01_baseline",
+    "start": "X",
+    "bearing": "N",
+    "goals": "X,O,Q,X",
+    "env": {}
+  }
+}

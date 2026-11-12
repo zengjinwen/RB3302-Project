@@ -1,0 +1,71 @@
+2026-11-11 SECOND-VERSION CODE REVIEW
+
+Scope
+Reviewed the active run_corner_rpp.sh -> run.sh -> all/mission/localization launches,
+mission package, A*, fixed grid coordinates, quarter-circle generation, RPP,
+PID+Stanley, rate feedback, goal hold, inherited obstacle detector/replanning,
+serial driver, raw odometry, EKF/AMCL configuration, custom AMCL motion model,
+robot frame transforms and IMU publishing code. Legacy arc/display modules were
+also inspected but are not the active motion controller. This is not an audit
+of every third-party ROS/laser SDK implementation or of robot firmware.
+
+Fixed in preceding review step
+1. V2 face_route inherited relative quarter turns with 15-degree early stopping.
+   V2 now targets the actual absolute route heading (3-degree yaw completion).
+2. V2 straight motion did not enable measured angular-rate PI used by RPP.
+   Straight motion now enables the same existing rate feedback.
+
+Fixed in this review
+3. The new heading alignment was called at every line action, including RPP-to-
+   straight transitions. Align only on mission/goal departure or after replanning;
+   continuous path sections keep moving and correcting their heading.
+4. Rate PI output could exceed 2 rad/s while the active driver clips to 2 rad/s.
+   Shared rate trim now respects that existing actuator-command limit and prevents
+   integral accumulation further into saturation. This is a command limit, not a
+   claim that the measured robot can reach 2 rad/s.
+5. MapPlanner.clear_line(a,a) divided by zero. Zero-length clearance checks now
+   inspect the point without dividing by zero.
+6. Removed unused V2 in_curve state; did not change obstacle decisions.
+
+Verified / unchanged
+- A-X centres have 0.58m spacing, N=+y, E=+x.
+- Static map and course are the current refined58cm map/coordinates.
+- Quarter circles: radius20cm, front lookahead10cm. Fixed reference centreline.
+- V2 launch speed .18m/s, Stanley cross gain .6, nominal straight yaw cap .65.
+  Measured-rate trim may adjust requested yaw before final 2rad/s command cap.
+- Goal: normal-speed arrival, then4s zero commands; callbacks keep running.
+  No goal-position second alignment or repeating corrections.
+- V1/V2 share ExperimentalObstacleMission scan processing and ObstacleMission
+  blocks_route/replan_at_centre. Detector, thresholds, one-cell memory unchanged.
+- TF ownership: AMCL map->odom, EKF odom->base_link, robot_state_publisher fixed frames.
+- EKF50Hz, AMCL1000-3000 particles/120 beams/min motion thresholds0 unchanged.
+- Active base_driver override sends SI T13 commands, not the unused parent's
+  direct-wheel minimum-speed branch. Driver watchdogs still exist.
+- Lidar mount+0.015m forward as previously selected; not remeasured this review.
+
+Unresolved / not claimed fixed
+- Arrival uses a transverse endpoint plane. Passing it with cross-track error
+  can still finish a goal. No exact2D-centre guarantee; changing this would change
+  the latest user-requested no-post-goal-correction behavior.
+- The logged TF and latest AMCL samples have different timestamps. Their difference
+  alone does not prove TF error; no arbitrary distance or time compensation added.
+- Physical wheel response, slip, odometry distance scale, laser mounting calibration
+  and absolute localization accuracy cannot be established by this code review.
+- Custom AMCL signed-vector model does not inject translation on pure odometry
+  rotation. Actual skid-induced centre movement may be poorly represented; retained.
+- A radius20cm curve can be rejected by static clearance; code explicitly logs and
+  retains a right-angle reference. RPP may pivot when target bearing exceeds45deg.
+- Stale localization/base feedback stops and no-route waits remain existing behavior.
+- No new guarantee that real robot centre error or straight tracking meets tolerance.
+
+Verification performed once, without robot or Gazebo
+- Parse all mission Python modules; shell syntax for launch wrappers/RViz script.
+- A* vs independent BFS:14400 start/goal/one-blocked-cell cases.
+- Zero-length point-clearance checks at all24 centres.
+-8 cardinal left/right quarter-circle geometry cases and pursuit correction signs.
+- Actual RateTrim class: saturation, anti-windup, zero-command and stale feedback.
+- V2 absolute-heading dispatch and straight-feedback lifetime checked in preceding step.
+- Detector/pose reader/arc geometry hashes unchanged by this review.
+
+Backup: backups/before_full_review_20261111_151638/rb3302_mission
+No simulation or hardware run performed. Upload/build rb3302_mission required.

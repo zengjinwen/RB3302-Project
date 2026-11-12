@@ -1,0 +1,1818 @@
+[
+  {
+    "completed": true,
+    "events": [
+      {
+        "event": "Route: A",
+        "poses": {
+          "truth": [
+            0.3,
+            2.099999292384736
+          ],
+          "amcl": [
+            0.29802796920339664,
+            2.097737908048463
+          ]
+        }
+      },
+      {
+        "event": "GOAL A error=0.003m",
+        "poses": {
+          "truth": [
+            0.3,
+            2.099999292384736
+          ],
+          "amcl": [
+            0.2953522276120769,
+            2.0972380402030963
+          ]
+        },
+        "true_goal_error": 7.076152641616318e-07
+      },
+      {
+        "event": "Route: A -> B -> C -> D -> E -> F",
+        "poses": {
+          "truth": [
+            0.3,
+            2.099999292384736
+          ],
+          "amcl": [
+            0.2771262150394139,
+            2.099896885717312
+          ]
+        }
+      },
+      {
+        "event": "GOAL F error=0.024m",
+        "poses": {
+          "truth": [
+            3.305271358081884,
+            2.0942515862377733
+          ],
+          "amcl": [
+            3.276460943419041,
+            2.095120286985472
+          ]
+        },
+        "true_goal_error": 0.0077994536224792
+      },
+      {
+        "event": "Route: F -> E -> D -> C -> B -> A -> G -> M -> S",
+        "poses": {
+          "truth": [
+            3.305271358081884,
+            2.0942515862377733
+          ],
+          "amcl": [
+            3.2825759685953093,
+            2.094067132807102
+          ]
+        }
+      },
+      {
+        "event": "Turn +178.2 deg",
+        "poses": {
+          "truth": [
+            3.305271358081884,
+            2.0942515862377733
+          ],
+          "amcl": [
+            3.2833754338851406,
+            2.0940756907861684
+          ]
+        }
+      },
+      {
+        "event": "Turn +77.6 deg",
+        "poses": {
+          "truth": [
+            0.35860050641252,
+            2.1223664644226563
+          ],
+          "amcl": [
+            0.33244951287486585,
+            2.1018822740453955
+          ]
+        }
+      },
+      {
+        "event": "GOAL S error=0.023m",
+        "poses": {
+          "truth": [
+            0.3426822454256683,
+            0.3497368600715926
+          ],
+          "amcl": [
+            0.29262263552875795,
+            0.32744163471137305
+          ]
+        },
+        "true_goal_error": 0.0655402877958143
+      },
+      {
+        "event": "Route: S -> M -> G -> A",
+        "poses": {
+          "truth": [
+            0.3426822454256683,
+            0.3497368600715926
+          ],
+          "amcl": [
+            0.28852112183656825,
+            0.3324706884744984
+          ]
+        }
+      },
+      {
+        "event": "Turn +178.6 deg",
+        "poses": {
+          "truth": [
+            0.3426822454256683,
+            0.3497368600715926
+          ],
+          "amcl": [
+            0.28822250773281166,
+            0.33352587761514274
+          ]
+        }
+      },
+      {
+        "event": "GOAL A error=0.020m",
+        "poses": {
+          "truth": [
+            0.3224521118579425,
+            2.096645536343595
+          ],
+          "amcl": [
+            0.29517081162471387,
+            2.082434118928889
+          ]
+        },
+        "true_goal_error": 0.02270131611391077
+      },
+      {
+        "event": "MISSION COMPLETE",
+        "poses": {
+          "truth": [
+            0.3224521118579425,
+            2.096645536343595
+          ],
+          "amcl": [
+            0.2918641020629042,
+            2.082319168451726
+          ]
+        }
+      }
+    ],
+    "collision_frames": 0,
+    "truth_samples": 3618,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "simulation_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "rb3302_navigation"
+        ]
+      },
+      "/imu_data_ros": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "rb3302_navigation"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "rb3302_navigation",
+          "simulation_evidence"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "rb3302_navigation"
+        ],
+        "subscribers": [
+          "sim_hardware"
+        ]
+      }
+    },
+    "localization_samples": 1212,
+    "amcl_position_rmse": 0.03796124315369696,
+    "amcl_position_max": 0.06531107833897513,
+    "amcl_yaw_rmse_deg": 0.9941001884319551,
+    "case": {
+      "name": "01_A_east_clear",
+      "start": "A",
+      "bearing": "E",
+      "goals": "A,F,S,A",
+      "env": {}
+    },
+    "passed": true
+  },
+  {
+    "completed": true,
+    "events": [
+      {
+        "event": "Route: X",
+        "poses": {
+          "truth": [
+            3.339999938327266,
+            0.28000070492257717
+          ],
+          "amcl": [
+            3.301725780594296,
+            0.287290863939257
+          ]
+        }
+      },
+      {
+        "event": "GOAL X error=0.011m",
+        "poses": {
+          "truth": [
+            3.339999938327266,
+            0.28000070492257717
+          ],
+          "amcl": [
+            3.3029079388059137,
+            0.28168906610275785
+          ]
+        },
+        "true_goal_error": 0.04472098914132951
+      },
+      {
+        "event": "Route: X -> W -> V -> U -> O",
+        "poses": {
+          "truth": [
+            3.339999938327266,
+            0.28000070492257717
+          ],
+          "amcl": [
+            3.3046859253668943,
+            0.27713628788059635
+          ]
+        }
+      },
+      {
+        "event": "Turn -73.9 deg",
+        "poses": {
+          "truth": [
+            1.5651277442174676,
+            0.30299691404872525
+          ],
+          "amcl": [
+            1.5239884616943438,
+            0.29383990076689936
+          ]
+        }
+      },
+      {
+        "event": "GOAL O error=0.025m",
+        "poses": {
+          "truth": [
+            1.5311193167244956,
+            0.8905637199324965
+          ],
+          "amcl": [
+            1.4969507497848815,
+            0.8734778741294265
+          ]
+        },
+        "true_goal_error": 0.03251853709673666
+      },
+      {
+        "event": "Route: O -> P -> Q",
+        "poses": {
+          "truth": [
+            1.5311193167244956,
+            0.8905637199324965
+          ],
+          "amcl": [
+            1.4956428530031418,
+            0.8689559055316605
+          ]
+        }
+      },
+      {
+        "event": "Turn -88.7 deg",
+        "poses": {
+          "truth": [
+            1.5311193167244956,
+            0.8905637199324965
+          ],
+          "amcl": [
+            1.4956428530031418,
+            0.8689559055316605
+          ]
+        }
+      },
+      {
+        "event": "GOAL Q error=0.026m",
+        "poses": {
+          "truth": [
+            2.7044998609388173,
+            0.929044926535476
+          ],
+          "amcl": [
+            2.6676240908299143,
+            0.8968084342350429
+          ]
+        },
+        "true_goal_error": 0.029391435928172827
+      },
+      {
+        "event": "Route: Q -> R -> X",
+        "poses": {
+          "truth": [
+            2.7044998609388173,
+            0.929044926535476
+          ],
+          "amcl": [
+            2.676444435946017,
+            0.8994988061468183
+          ]
+        }
+      },
+      {
+        "event": "Turn -87.9 deg",
+        "poses": {
+          "truth": [
+            3.294964306204284,
+            0.9484620933887157
+          ],
+          "amcl": [
+            3.2743403285275914,
+            0.8984828362471436
+          ]
+        }
+      },
+      {
+        "event": "GOAL X error=0.022m",
+        "poses": {
+          "truth": [
+            3.3315814605814027,
+            0.3539011393001119
+          ],
+          "amcl": [
+            3.298934251062472,
+            0.31935312215432327
+          ]
+        },
+        "true_goal_error": 0.062471765384890264
+      },
+      {
+        "event": "MISSION COMPLETE",
+        "poses": {
+          "truth": [
+            3.3315814605814027,
+            0.3539011393001119
+          ],
+          "amcl": [
+            3.3046844852413955,
+            0.31822933819020166
+          ]
+        }
+      }
+    ],
+    "collision_frames": 0,
+    "truth_samples": 2211,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "simulation_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "rb3302_navigation"
+        ]
+      },
+      "/imu_data_ros": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "rb3302_navigation"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "rb3302_navigation",
+          "simulation_evidence"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "rb3302_navigation"
+        ],
+        "subscribers": [
+          "sim_hardware"
+        ]
+      }
+    },
+    "localization_samples": 738,
+    "amcl_position_rmse": 0.042205710717874934,
+    "amcl_position_max": 0.057728673340472485,
+    "amcl_yaw_rmse_deg": 1.3767484140266613,
+    "case": {
+      "name": "02_X_west_offset_noise",
+      "start": "X",
+      "bearing": "W",
+      "goals": "X,O,Q,X",
+      "env": {
+        "SIM_SPAWN_DX": ".04",
+        "SIM_SPAWN_DY": "-.02",
+        "SIM_SPAWN_YAW": "5",
+        "SIM_LIDAR_NOISE": ".02",
+        "SIM_GYRO_NOISE": ".02"
+      }
+    },
+    "passed": true
+  },
+  {
+    "completed": true,
+    "events": [
+      {
+        "event": "Route: S",
+        "poses": {
+          "truth": [
+            0.30000070761526665,
+            0.3
+          ],
+          "amcl": [
+            0.2981719192473535,
+            0.28945667807262426
+          ]
+        }
+      },
+      {
+        "event": "GOAL S error=0.006m",
+        "poses": {
+          "truth": [
+            0.30000070761526665,
+            0.3
+          ],
+          "amcl": [
+            0.2907282347617708,
+            0.28463832716645515
+          ]
+        },
+        "true_goal_error": 7.076152666596336e-07
+      },
+      {
+        "event": "Route: S -> M -> G -> A -> B -> C",
+        "poses": {
+          "truth": [
+            0.30000070761526665,
+            0.3
+          ],
+          "amcl": [
+            0.28847775236242856,
+            0.27789848859163374
+          ]
+        }
+      },
+      {
+        "event": "Turn -79.2 deg",
+        "poses": {
+          "truth": [
+            0.32531590531507026,
+            2.092339821880031
+          ],
+          "amcl": [
+            0.2872502059534702,
+            2.079864379360349
+          ]
+        }
+      },
+      {
+        "event": "GOAL C error=0.028m",
+        "poses": {
+          "truth": [
+            1.50549464727271,
+            2.1307171476989963
+          ],
+          "amcl": [
+            1.4752343050663372,
+            2.1041762163583075
+          ]
+        },
+        "true_goal_error": 0.031204716172614836
+      },
+      {
+        "event": "Route: C -> D -> E -> F",
+        "poses": {
+          "truth": [
+            1.50549464727271,
+            2.1307171476989963
+          ],
+          "amcl": [
+            1.4688851484095378,
+            2.109504994678384
+          ]
+        }
+      },
+      {
+        "event": "GOAL F error=0.025m",
+        "poses": {
+          "truth": [
+            3.2914066930055954,
+            2.090047788989092
+          ],
+          "amcl": [
+            3.2767084826818214,
+            2.097162069305997
+          ]
+        },
+        "true_goal_error": 0.01314881854410194
+      },
+      {
+        "event": "Route: F -> E -> D -> C -> B -> A -> G -> M -> S",
+        "poses": {
+          "truth": [
+            3.2914066930055954,
+            2.090047788989092
+          ],
+          "amcl": [
+            3.277021462133147,
+            2.098406125457532
+          ]
+        }
+      },
+      {
+        "event": "Turn +173.2 deg",
+        "poses": {
+          "truth": [
+            3.2914066930055954,
+            2.090047788989092
+          ],
+          "amcl": [
+            3.277021462133147,
+            2.098406125457532
+          ]
+        }
+      },
+      {
+        "event": "Turn +83.8 deg",
+        "poses": {
+          "truth": [
+            0.36601813097452857,
+            2.0966059483280532
+          ],
+          "amcl": [
+            0.33236733283416864,
+            2.1012699581128094
+          ]
+        }
+      },
+      {
+        "event": "Confirmed occupied cell U",
+        "poses": {
+          "truth": [
+            0.3391374358296333,
+            0.370219231080769
+          ],
+          "amcl": [
+            0.29805254931638325,
+            0.34124133922201494
+          ]
+        }
+      },
+      {
+        "event": "GOAL S error=0.022m",
+        "poses": {
+          "truth": [
+            0.3385570532076736,
+            0.35300954410975033
+          ],
+          "amcl": [
+            0.2985060857063912,
+            0.32113589533180703
+          ]
+        },
+        "true_goal_error": 0.06554889868474481
+      },
+      {
+        "event": "MISSION COMPLETE",
+        "poses": {
+          "truth": [
+            0.3385570532076736,
+            0.35300954410975033
+          ],
+          "amcl": [
+            0.29782082156553874,
+            0.32088067949060234
+          ]
+        }
+      }
+    ],
+    "collision_frames": 0,
+    "truth_samples": 3567,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "simulation_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "rb3302_navigation"
+        ]
+      },
+      "/imu_data_ros": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "rb3302_navigation"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "simulation_evidence",
+          "rb3302_navigation"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "rb3302_navigation"
+        ],
+        "subscribers": [
+          "sim_hardware"
+        ]
+      }
+    },
+    "localization_samples": 1212,
+    "amcl_position_rmse": 0.03769306091407127,
+    "amcl_position_max": 0.06257956179314823,
+    "amcl_yaw_rmse_deg": 1.106113399622284,
+    "case": {
+      "name": "03_S_north_U35",
+      "start": "S",
+      "bearing": "N",
+      "goals": "S,C,F,S",
+      "env": {
+        "SIM_OBSTACLE": "U",
+        "SIM_OBSTACLE_SIZE": ".35"
+      }
+    },
+    "passed": true
+  },
+  {
+    "completed": true,
+    "events": [
+      {
+        "event": "Route: F",
+        "poses": {
+          "truth": [
+            3.3,
+            2.100000707615267
+          ],
+          "amcl": [
+            3.2967692408369893,
+            2.1047383795928445
+          ]
+        }
+      },
+      {
+        "event": "GOAL F error=0.004m",
+        "poses": {
+          "truth": [
+            3.3,
+            2.100000707615267
+          ],
+          "amcl": [
+            3.2957522838537705,
+            2.106771813457344
+          ]
+        },
+        "true_goal_error": 7.07615266826167e-07
+      },
+      {
+        "event": "Route: F -> E -> D -> C -> B -> A",
+        "poses": {
+          "truth": [
+            3.3,
+            2.100000707615267
+          ],
+          "amcl": [
+            3.2974127239353113,
+            2.095085529319309
+          ]
+        }
+      },
+      {
+        "event": "Confirmed occupied cell C",
+        "poses": {
+          "truth": [
+            2.534849066013166,
+            2.117248793989242
+          ],
+          "amcl": [
+            2.5443080852704445,
+            2.0825918800479073
+          ]
+        }
+      },
+      {
+        "event": "Route: E -> F -> L -> R -> Q -> P -> O -> U -> T -> S -> M -> G -> A",
+        "poses": {
+          "truth": [
+            2.534849066013166,
+            2.117248793989242
+          ],
+          "amcl": [
+            2.534921547805074,
+            2.078316893432321
+          ]
+        }
+      },
+      {
+        "event": "Turn -174.5 deg",
+        "poses": {
+          "truth": [
+            2.531523004331119,
+            2.1172565992042442
+          ],
+          "amcl": [
+            2.534921547805074,
+            2.078316893432321
+          ]
+        }
+      },
+      {
+        "event": "Turn -71.6 deg",
+        "poses": {
+          "truth": [
+            3.295795697812855,
+            2.1379573968136625
+          ],
+          "amcl": [
+            3.2733309162736446,
+            2.1082073174038367
+          ]
+        }
+      },
+      {
+        "event": "Turn -83.5 deg",
+        "poses": {
+          "truth": [
+            3.3053661938780916,
+            0.9452316042717677
+          ],
+          "amcl": [
+            3.3032731001690747,
+            0.9276742436404481
+          ]
+        }
+      },
+      {
+        "event": "Turn +80.0 deg",
+        "poses": {
+          "truth": [
+            1.5514887473025059,
+            0.9271501741552597
+          ],
+          "amcl": [
+            1.5265280609982907,
+            0.9010740804170695
+          ]
+        }
+      },
+      {
+        "event": "Turn -81.5 deg",
+        "poses": {
+          "truth": [
+            1.5238872283621832,
+            0.3556824859509202
+          ],
+          "amcl": [
+            1.4942262006135378,
+            0.3212312834130026
+          ]
+        }
+      },
+      {
+        "event": "Turn -67.5 deg",
+        "poses": {
+          "truth": [
+            0.3599733065721663,
+            0.3238662628645225
+          ],
+          "amcl": [
+            0.33627332506147506,
+            0.27795216735354433
+          ]
+        }
+      },
+      {
+        "event": "GOAL A error=0.025m",
+        "poses": {
+          "truth": [
+            0.30637185286670404,
+            2.1062597935091327
+          ],
+          "amcl": [
+            0.27914632657239824,
+            2.0925593861913243
+          ]
+        },
+        "true_goal_error": 0.008932274275452123
+      },
+      {
+        "event": "Route: A -> G -> M -> S -> T -> U -> O -> P",
+        "poses": {
+          "truth": [
+            0.30637185286670404,
+            2.1062597935091327
+          ],
+          "amcl": [
+            0.26615233173878566,
+            2.097487326320867
+          ]
+        }
+      },
+      {
+        "event": "Turn -155.5 deg",
+        "poses": {
+          "truth": [
+            0.30637185286670404,
+            2.1062597935091327
+          ],
+          "amcl": [
+            0.26615233173878566,
+            2.097487326320867
+          ]
+        }
+      },
+      {
+        "event": "Turn +73.5 deg",
+        "poses": {
+          "truth": [
+            0.3262920166598987,
+            0.3589936684949192
+          ],
+          "amcl": [
+            0.29454126306788075,
+            0.32018683155582894
+          ]
+        }
+      },
+      {
+        "event": "Turn +78.6 deg",
+        "poses": {
+          "truth": [
+            1.499490966381269,
+            0.3335745637247951
+          ],
+          "amcl": [
+            1.4738592947461449,
+            0.298632295000556
+          ]
+        }
+      },
+      {
+        "event": "Turn -91.3 deg",
+        "poses": {
+          "truth": [
+            1.5360474230217285,
+            0.9116701217422161
+          ],
+          "amcl": [
+            1.5071293167666449,
+            0.8769434395563119
+          ]
+        }
+      },
+      {
+        "event": "GOAL P error=0.025m",
+        "poses": {
+          "truth": [
+            2.111138694053488,
+            0.9499162796509905
+          ],
+          "amcl": [
+            2.0810944271148424,
+            0.9180833008176086
+          ]
+        },
+        "true_goal_error": 0.051143968162561344
+      },
+      {
+        "event": "Route: P -> Q -> R -> L -> F",
+        "poses": {
+          "truth": [
+            2.111138694053488,
+            0.9499162796509905
+          ],
+          "amcl": [
+            2.0799470393178745,
+            0.9192737609684268
+          ]
+        }
+      },
+      {
+        "event": "Turn +92.7 deg",
+        "poses": {
+          "truth": [
+            3.306832010879476,
+            0.9349294211747542
+          ],
+          "amcl": [
+            3.2766728518333736,
+            0.9079180910920801
+          ]
+        }
+      },
+      {
+        "event": "GOAL F error=0.023m",
+        "poses": {
+          "truth": [
+            3.3321823089809413,
+            2.0891432487338046
+          ],
+          "amcl": [
+            3.300647915791994,
+            2.0701992658289603
+          ]
+        },
+        "true_goal_error": 0.033964246781002225
+      },
+      {
+        "event": "MISSION COMPLETE",
+        "poses": {
+          "truth": [
+            3.3321823089809413,
+            2.0891432487338046
+          ],
+          "amcl": [
+            3.315227344820529,
+            2.070351480195414
+          ]
+        }
+      }
+    ],
+    "collision_frames": 0,
+    "truth_samples": 5748,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "simulation_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "rb3302_navigation"
+        ]
+      },
+      "/imu_data_ros": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "rb3302_navigation"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "simulation_evidence",
+          "rb3302_navigation"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "rb3302_navigation"
+        ],
+        "subscribers": [
+          "sim_hardware"
+        ]
+      }
+    },
+    "localization_samples": 1944,
+    "amcl_position_rmse": 0.03800595677447956,
+    "amcl_position_max": 0.06263272816208548,
+    "amcl_yaw_rmse_deg": 1.0538264515105913,
+    "case": {
+      "name": "04_F_west_C40",
+      "start": "F",
+      "bearing": "W",
+      "goals": "F,A,P,F",
+      "env": {
+        "SIM_OBSTACLE": "C",
+        "SIM_OBSTACLE_SIZE": ".40"
+      }
+    },
+    "passed": true
+  },
+  {
+    "completed": true,
+    "events": [
+      {
+        "event": "Route: P",
+        "poses": {
+          "truth": [
+            2.1,
+            0.8999992923847367
+          ],
+          "amcl": [
+            2.100599818594295,
+            0.8913871604001122
+          ]
+        }
+      },
+      {
+        "event": "GOAL P error=0.008m",
+        "poses": {
+          "truth": [
+            2.1,
+            0.8999992923847367
+          ],
+          "amcl": [
+            2.098633520922029,
+            0.8897613153812906
+          ]
+        },
+        "true_goal_error": 7.076152632734534e-07
+      },
+      {
+        "event": "Confirmed occupied cell Q",
+        "poses": {
+          "truth": [
+            2.1,
+            0.8999992923847367
+          ],
+          "amcl": [
+            2.0975647071618204,
+            0.8888028748169524
+          ]
+        }
+      },
+      {
+        "event": "Route: P -> O -> I -> C -> D -> E -> F -> L",
+        "poses": {
+          "truth": [
+            2.1,
+            0.8999992923847367
+          ],
+          "amcl": [
+            2.080281668098191,
+            0.8637847634128916
+          ]
+        }
+      },
+      {
+        "event": "Turn +177.8 deg",
+        "poses": {
+          "truth": [
+            2.1,
+            0.8999992923847367
+          ],
+          "amcl": [
+            2.080281668098191,
+            0.8637847634128916
+          ]
+        }
+      },
+      {
+        "event": "Turn -71.0 deg",
+        "poses": {
+          "truth": [
+            1.567515365959466,
+            0.9202228532830481
+          ],
+          "amcl": [
+            1.5237692149820175,
+            0.8878656604240964
+          ]
+        }
+      },
+      {
+        "event": "Turn -70.8 deg",
+        "poses": {
+          "truth": [
+            1.4997003780482805,
+            2.0974508943447785
+          ],
+          "amcl": [
+            1.4856833474971036,
+            2.0767627038518897
+          ]
+        }
+      },
+      {
+        "event": "Turn -75.6 deg",
+        "poses": {
+          "truth": [
+            3.301898956819643,
+            2.131016119086534
+          ],
+          "amcl": [
+            3.281552465260014,
+            2.106560908472879
+          ]
+        }
+      },
+      {
+        "event": "GOAL L error=0.022m",
+        "poses": {
+          "truth": [
+            3.3116513946025434,
+            1.543152229697636
+          ],
+          "amcl": [
+            3.303142049565493,
+            1.5214685961912415
+          ]
+        },
+        "true_goal_error": 0.0446975382326782
+      },
+      {
+        "event": "Route: L -> F -> E -> D -> C -> B -> A -> G",
+        "poses": {
+          "truth": [
+            3.3116513898144277,
+            1.543152019814767
+          ],
+          "amcl": [
+            3.3016908837622068,
+            1.527507510407112
+          ]
+        }
+      },
+      {
+        "event": "Turn -178.8 deg",
+        "poses": {
+          "truth": [
+            3.3116513898144277,
+            1.543152019814767
+          ],
+          "amcl": [
+            3.3016908837622068,
+            1.527507510407112
+          ]
+        }
+      },
+      {
+        "event": "Turn +76.6 deg",
+        "poses": {
+          "truth": [
+            3.3149349198590192,
+            2.0869241874996427
+          ],
+          "amcl": [
+            3.3058868692755903,
+            2.0791126679011516
+          ]
+        }
+      },
+      {
+        "event": "Turn +69.1 deg",
+        "poses": {
+          "truth": [
+            0.34516870941168964,
+            2.128370966228021
+          ],
+          "amcl": [
+            0.3293639809252923,
+            2.114856760054609
+          ]
+        }
+      },
+      {
+        "event": "GOAL G error=0.024m",
+        "poses": {
+          "truth": [
+            0.3122911025325782,
+            1.5533414045178815
+          ],
+          "amcl": [
+            0.2954114987829783,
+            1.5254318132366136
+          ]
+        },
+        "true_goal_error": 0.054739169133323703
+      },
+      {
+        "event": "Route: G -> A -> B -> C -> I -> O -> P",
+        "poses": {
+          "truth": [
+            0.3122911025325782,
+            1.5533414045178815
+          ],
+          "amcl": [
+            0.29343508042710315,
+            1.5372735104741255
+          ]
+        }
+      },
+      {
+        "event": "Turn +174.4 deg",
+        "poses": {
+          "truth": [
+            0.3122911025325782,
+            1.5533414045178815
+          ],
+          "amcl": [
+            0.29343508042710315,
+            1.5372735104741255
+          ]
+        }
+      },
+      {
+        "event": "Turn -84.3 deg",
+        "poses": {
+          "truth": [
+            0.31971982691043654,
+            2.0939138363417
+          ],
+          "amcl": [
+            0.2942911529450613,
+            2.0811207636882596
+          ]
+        }
+      },
+      {
+        "event": "Turn -77.3 deg",
+        "poses": {
+          "truth": [
+            1.5148404087930738,
+            2.121397451148408
+          ],
+          "amcl": [
+            1.47635372341655,
+            2.1052753626666245
+          ]
+        }
+      },
+      {
+        "event": "Turn +81.4 deg",
+        "poses": {
+          "truth": [
+            1.5226970258156431,
+            0.9523064079087308
+          ],
+          "amcl": [
+            1.492270544031822,
+            0.9230666991229107
+          ]
+        }
+      },
+      {
+        "event": "GOAL P error=0.020m",
+        "poses": {
+          "truth": [
+            2.1104734473772,
+            0.9199926548841659
+          ],
+          "amcl": [
+            2.0814789232984636,
+            0.9037034911639039
+          ]
+        },
+        "true_goal_error": 0.02256987703290247
+      },
+      {
+        "event": "MISSION COMPLETE",
+        "poses": {
+          "truth": [
+            2.1104734473772,
+            0.9199926548841659
+          ],
+          "amcl": [
+            2.0882658487436823,
+            0.9043339559417213
+          ]
+        }
+      }
+    ],
+    "collision_frames": 0,
+    "truth_samples": 4886,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "simulation_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "rb3302_navigation"
+        ]
+      },
+      "/imu_data_ros": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "rb3302_navigation"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "rb3302_navigation",
+          "simulation_evidence"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "rb3302_navigation"
+        ],
+        "subscribers": [
+          "sim_hardware"
+        ]
+      }
+    },
+    "localization_samples": 1650,
+    "amcl_position_rmse": 0.03363925958514351,
+    "amcl_position_max": 0.05765825740347553,
+    "amcl_yaw_rmse_deg": 1.1128912074344328,
+    "case": {
+      "name": "05_P_east_Q30",
+      "start": "P",
+      "bearing": "E",
+      "goals": "P,L,G,P",
+      "env": {
+        "SIM_OBSTACLE": "Q",
+        "SIM_OBSTACLE_SIZE": ".30"
+      }
+    },
+    "passed": true
+  },
+  {
+    "completed": true,
+    "events": [
+      {
+        "event": "Route: X",
+        "poses": {
+          "truth": [
+            3.3000007076152666,
+            0.3
+          ],
+          "amcl": [
+            3.300315393405924,
+            0.2878382002393653
+          ]
+        }
+      },
+      {
+        "event": "GOAL X error=0.008m",
+        "poses": {
+          "truth": [
+            3.3000007076152666,
+            0.3
+          ],
+          "amcl": [
+            3.3008197757109743,
+            0.28780387958826625
+          ]
+        },
+        "true_goal_error": 7.07615266826167e-07
+      },
+      {
+        "event": "Route: X -> R -> Q -> P",
+        "poses": {
+          "truth": [
+            3.3000007076152666,
+            0.3
+          ],
+          "amcl": [
+            3.300466179598404,
+            0.2866167738995935
+          ]
+        }
+      },
+      {
+        "event": "Confirmed occupied cell Q",
+        "poses": {
+          "truth": [
+            3.300162053429224,
+            0.4449522647726526
+          ],
+          "amcl": [
+            3.2971668928628843,
+            0.4346342239589352
+          ]
+        }
+      },
+      {
+        "event": "Route: X -> W -> V -> U -> O -> P",
+        "poses": {
+          "truth": [
+            3.3001700233642883,
+            0.4483522517499337
+          ],
+          "amcl": [
+            3.2971668928628843,
+            0.4346342239589352
+          ]
+        }
+      },
+      {
+        "event": "Turn +179.7 deg",
+        "poses": {
+          "truth": [
+            3.3001700233642883,
+            0.4483522517499337
+          ],
+          "amcl": [
+            3.2971668928628843,
+            0.4346342239589352
+          ]
+        }
+      },
+      {
+        "event": "Turn -85.3 deg",
+        "poses": {
+          "truth": [
+            3.299188563495973,
+            0.3339575477566158
+          ],
+          "amcl": [
+            3.2955535897098143,
+            0.3222339202943946
+          ]
+        }
+      },
+      {
+        "event": "Turn -75.3 deg",
+        "poses": {
+          "truth": [
+            1.5593517054437551,
+            0.324777987885375
+          ],
+          "amcl": [
+            1.5268867386651979,
+            0.29486178239466104
+          ]
+        }
+      },
+      {
+        "event": "Turn -78.9 deg",
+        "poses": {
+          "truth": [
+            1.5220298070332,
+            0.9093548851872352
+          ],
+          "amcl": [
+            1.5012205930707863,
+            0.8719468966415945
+          ]
+        }
+      },
+      {
+        "event": "GOAL P error=0.025m",
+        "poses": {
+          "truth": [
+            2.0989057929751764,
+            0.9507390379800283
+          ],
+          "amcl": [
+            2.0715850221746317,
+            0.9084995203002819
+          ]
+        },
+        "true_goal_error": 0.050750835107926356
+      },
+      {
+        "event": "Route: P -> O -> I -> C -> B -> A -> G",
+        "poses": {
+          "truth": [
+            2.0989057929751764,
+            0.9507390379800283
+          ],
+          "amcl": [
+            2.0700407342399774,
+            0.9130382461901432
+          ]
+        }
+      },
+      {
+        "event": "Turn -177.3 deg",
+        "poses": {
+          "truth": [
+            2.0989057929751764,
+            0.9507390379800283
+          ],
+          "amcl": [
+            2.070492207450022,
+            0.9116372284016441
+          ]
+        }
+      },
+      {
+        "event": "Turn -84.7 deg",
+        "poses": {
+          "truth": [
+            1.5583982729419885,
+            0.9389901790780938
+          ],
+          "amcl": [
+            1.5221509264243311,
+            0.9099762452878256
+          ]
+        }
+      },
+      {
+        "event": "Turn +84.5 deg",
+        "poses": {
+          "truth": [
+            1.5251227232570836,
+            2.0955812874354574
+          ],
+          "amcl": [
+            1.4970696166192596,
+            2.071652781505435
+          ]
+        }
+      },
+      {
+        "event": "Turn +64.5 deg",
+        "poses": {
+          "truth": [
+            0.34429964205035385,
+            2.1369937637900134
+          ],
+          "amcl": [
+            0.3205375237922938,
+            2.1105818192304233
+          ]
+        }
+      },
+      {
+        "event": "GOAL G error=0.023m",
+        "poses": {
+          "truth": [
+            0.325064341585489,
+            1.5265231190845563
+          ],
+          "amcl": [
+            0.31195914414858583,
+            1.5238381117988238
+          ]
+        },
+        "true_goal_error": 0.03649242476306047
+      },
+      {
+        "event": "Route: G -> M -> S -> T -> U -> V -> W -> X",
+        "poses": {
+          "truth": [
+            0.325064341585489,
+            1.5265231190845563
+          ],
+          "amcl": [
+            0.32042279543302843,
+            1.5200015953013586
+          ]
+        }
+      },
+      {
+        "event": "Turn +90.0 deg",
+        "poses": {
+          "truth": [
+            0.3501489303633167,
+            0.3374073643235752
+          ],
+          "amcl": [
+            0.30940585556859973,
+            0.3207418621093852
+          ]
+        }
+      },
+      {
+        "event": "GOAL X error=0.024m",
+        "poses": {
+          "truth": [
+            3.3116010080454434,
+            0.3348749557052715
+          ],
+          "amcl": [
+            3.2790047974331262,
+            0.28620233340196655
+          ]
+        },
+        "true_goal_error": 0.03675385589451937
+      },
+      {
+        "event": "MISSION COMPLETE",
+        "poses": {
+          "truth": [
+            3.3116010080454434,
+            0.3348749557052715
+          ],
+          "amcl": [
+            3.2741159198551633,
+            0.2777839721716607
+          ]
+        }
+      }
+    ],
+    "collision_frames": 0,
+    "truth_samples": 4526,
+    "topic_audit": {
+      "/sim/ground_truth": {
+        "publishers": [
+          "ros_gz_bridge"
+        ],
+        "subscribers": [
+          "simulation_evidence"
+        ]
+      },
+      "/scan": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "amcl",
+          "rb3302_navigation"
+        ]
+      },
+      "/imu_data_ros": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom/raw": {
+        "publishers": [
+          "sim_hardware"
+        ],
+        "subscribers": [
+          "ekf_filter_node"
+        ]
+      },
+      "/odom": {
+        "publishers": [
+          "ekf_filter_node"
+        ],
+        "subscribers": [
+          "rb3302_navigation"
+        ]
+      },
+      "/amcl_pose": {
+        "publishers": [
+          "amcl"
+        ],
+        "subscribers": [
+          "simulation_evidence",
+          "rb3302_navigation"
+        ]
+      },
+      "/cmd_vel": {
+        "publishers": [
+          "rb3302_navigation"
+        ],
+        "subscribers": [
+          "sim_hardware"
+        ]
+      }
+    },
+    "localization_samples": 1523,
+    "amcl_position_rmse": 0.0434947741483433,
+    "amcl_position_max": 0.07749814663800508,
+    "amcl_yaw_rmse_deg": 1.3856444456726467,
+    "case": {
+      "name": "06_X_north_Q40_repeat",
+      "start": "X",
+      "bearing": "N",
+      "goals": "X,P,G,X",
+      "env": {
+        "SIM_OBSTACLE": "Q",
+        "SIM_OBSTACLE_SIZE": ".40"
+      }
+    },
+    "passed": true
+  }
+]

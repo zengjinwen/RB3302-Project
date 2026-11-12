@@ -1,0 +1,40 @@
+Two independent motion experiments; original mission_obstacle unchanged.
+Baseline snapshot: backups/before_two_turn_versions_20261109_223644
+
+1. run_feedback.sh: original 90-degree turn logic, plus measured yaw-rate PI.
+   Straight PID+Stanley, AMCL, grid A*, obstacles and goal rules unchanged.
+2. run_corner_rpp.sh: independently implemented curvature-regulated pursuit
+   only from the centre before a corner to the centre after it. Merge adjacent
+   windows. Straight sections outside windows retain original PID+Stanley.
+   Pivot is allowed when lookahead target is more sideways than forward.
+3. run_successful.sh: original mission_obstacle, without either experiment.
+
+No Antonio source or motor calibration file is loaded by either experiment.
+Methods referenced: measured yaw-rate feedback and regulated pure pursuit.
+These are adaptations of established methods, not claimed novel algorithms.
+
+Rate law: u=w_ref+clip(0.25*(w_ref-w_measured)+I, +/-0.5*abs(w_ref)).
+Integral time 1 second, conditional integration, reset on stop/sign change or
+stale measurement. Gain and integral time are provisional design selections,
+not identified from physical robot data. No minimum turn command is added.
+
+RPP law: curvature=2*y/(x*x+y*y), angular=v*curvature.
+Lookahead=min(body length 0.20m, half actual grid spacing), currently 0.20m.
+Lateral acceleration design limit=drive_speed^2/(half cell spacing), currently
+0.19862m/s^2 at 0.24m/s and 0.58m cells; not a measured traction limit.
+v=min(goal-aware speed, sqrt(lateral_accel/abs(curvature)),
+      configured turn_speed/abs(curvature)).
+Pivot when |target bearing| > pi/4 (lateral component > forward component).
+Pivot request=turn_speed*min(1,abs(bearing)/(pi/2)), with matching direction.
+Existing speed, goal slowdown and arrival rules retained; no copied Nav2
+costmap, collision checker or recovery system. Not the Nav2 RPP plugin.
+
+Build rb3302_mission once on the robot after uploading the package and wrappers.
+Pick ONE launcher with the normal run.sh arguments. No real-robot validation.
+
+Gazebo validation completed 2026-11-09. See /home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_224435/final_report/RESULTS.txt
+Clear cases meet 180s and geometric overlap/goal checks. Obstacle cases finish but exceed 180s and contain false blocked cells; NOT fully passing. No real-robot test yet.
+
+After Gazebo tests: experiment-only static-wall rejection fixed before fitting; only open neighbour connections considered; current blocked cell remains eligible. Previous Gazebo results do not validate this newer obstacle correction. Original mission_obstacle remains unchanged.
+
+Latest post-fix obstacle validation: feedback 91.05s; RPP 67.955s. Both no overlap frames, no false obstacle cells on tested route; under180s. Full results and goal errors: /home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_232925/final_report/RESULTS.txt

@@ -1,0 +1,58 @@
+[
+  {
+    "from": "prepare_robot.sh",
+    "to": "scripts/prepare_robot.sh"
+  },
+  {
+    "from": "run.sh",
+    "to": "scripts/run.sh"
+  },
+  {
+    "from": "run_clean.sh",
+    "to": "scripts/run_clean.sh"
+  },
+  {
+    "from": "run_controller.sh",
+    "to": "scripts/run_controller.sh"
+  },
+  {
+    "from": "run_corner_rpp.sh",
+    "to": "scripts/run_corner_rpp.sh"
+  },
+  {
+    "from": "run_feedback.sh",
+    "to": "scripts/run_feedback.sh"
+  },
+  {
+    "from": "run_successful.sh",
+    "to": "scripts/run_successful.sh"
+  },
+  {
+    "from": "rviz.sh",
+    "to": "scripts/rviz.sh"
+  },
+  {
+    "from": "rviz_clean.sh",
+    "to": "scripts/rviz_clean.sh"
+  },
+  {
+    "from": "sim.sh",
+    "to": "scripts/sim.sh"
+  },
+  {
+    "from": "sim_clean.sh",
+    "to": "scripts/sim_clean.sh"
+  },
+  {
+    "from": "test_sim.sh",
+    "to": "scripts/test_sim.sh"
+  },
+  {
+    "from": "FOLDER_GUIDE.txt",
+    "to": "docs/FOLDER_GUIDE.txt"
+  },
+  {
+    "from": "SUCCESSFUL_VERSION.txt",
+    "to": "docs/SUCCESSFUL_VERSION.txt"
+  }
+]

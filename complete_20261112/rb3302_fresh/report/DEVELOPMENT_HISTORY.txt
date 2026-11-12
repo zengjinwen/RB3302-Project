@@ -1,0 +1,392 @@
+RB3302 PROJECT — DEVELOPMENT HISTORY FOR THE FINAL REPORT
+Saved: 2026-10-26
+Scope: /home/rb3302-7/rb3302_fresh only.
+
+PURPOSE AND EVIDENCE RULES
+The user requests preservation of the whole coding/debugging process for a later report. This record is a chronology reconstructed from the conversation and current code, not a claim that every intermediate version was experimentally verified. Earlier requirements changed repeatedly; report the evolution rather than presenting the final design as the original plan. Do not invent results, dates, physical accuracy, or successful trials. Preserve failed approaches and explain why they were replaced. Robot log timestamps differ from desktop dates; do not silently equate them.
+
+PROJECT CONTEXT
+Teacher-supplied ROS 2 Jazzy robot packages formed the starting point. Hardware includes WAVE ROVER base, wheel odometry, IMU, and lidar. Robot footprint specified by user: 20 cm x 20 cm. User insists on simple readable code and few targeted checks, and manually uploads/builds/runs on ubuntu@192.168.50.7, ROS_DOMAIN_ID=7. Documents referenced: L08c_RB3302_Final_Project.pdf, L08b_Project.pdf, Project_Description.pdf, and an earlier README converted/requested as a document. Re-read original assignment documents when writing formal report: conversation summaries are not authoritative assignment requirements.
+
+1. INITIAL NAVIGATION AND FAILURES
+Initial discussion involved teacher A* and RPP/navigation components, localization and a separate mission node. User explored combining nodes but later accepted any number of nodes and wanted one terminal launcher. RPP means Regulated Pure Pursuit. Early runs showed poor movement, overshooting turns, stop/start behavior, no-route failures, and localization lag during rotation. Do not claim one single cause explained all runs.
+The user repeatedly requested removing complexity, obsolete implementations, temporary obstacle insertion, and unnecessary replanning. Old planning_astar and planning_rpp packages were eventually backed up and removed from student_ws source/build/install. Hardware packages and reference material were retained.
+
+2. MAP AND COURSE REPRESENTATION
+Selected cleaned, aligned map: student_ws/maps/rb3302_refined_aligned.yaml and .pgm. This is derived from /home/rb3302-7/RB3302_maps/rb3302_refined.pgm, rotated 90 degrees clockwise. Fine occupancy map: 98 x 80 cells, 0.05 m resolution, origin [-0.725, -0.875, 0]. Used for localization and occupancy checks, NOT the final A* search grid.
+Logical course: 24 letter centres A-X, spacing 0.60 m, cardinal movements. Rows A-F y=2.1; G-L y=1.5; M-R y=0.9; S-X y=0.3. Columns x=0.3+0.6*column. North +y, east +x.
+Earlier implementation used a finer A* grid despite the user's coarse-grid intent; this mismatch was corrected. A temporary request for 5x5 occurred during troubleshooting, but the later explicit final requirement is 60 cm letter-grid A*.
+MapPlanner constructs valid cardinal neighbour edges using the fine occupancy map. Current edge clearance uses stop_distance=0.22 m; unknown/occupied cells block edges. All 24 centres were found connected in local checks.
+Final path compression removes intermediate collinear centres, retains turns and each requested destination. Example I-C-B-A-G becomes I-C-A-G. Four designated targets (duplicates allowed), 3 s dwell at each designated target.
+
+3. LOCALIZATION ARCHITECTURE
+EKF combines raw odometry forward velocity and IMU yaw/angular velocity, publishing filtered odom and odom->base_link TF. EKF configured at 30 Hz; this is NOT AMCL's actual frequency. AMCL uses lidar plus known map and odom TF to estimate map pose. Logs typically show ~8.1-8.2 Hz AMCL updates and ~0.13-0.15 s reported pose age.
+User initially wanted greater odom confidence, then requested 10% odom/90% localization. Current mission pose correction still uses 0.90 AMCL correction weight. Later 70/30 request applies to SPEED CONTRIBUTIONS for longitudinal progress, not to AMCL particles or the coordinate correction weight. Do not conflate these.
+AMCL update_min_d and update_min_a set to 0; resample_interval=1. Extra fixed interval on request_nomotion_update removed; requests are triggered by new scans, only one outstanding request. This does not mean unlimited actual sensor/update rates.
+AMCL particle limits were not explicitly reduced in localization.yaml. Jazzy defaults are min_particles=500 and max_particles=2000 unless runtime overrides. Actual robot values were not independently confirmed. Apparent particle count can also change with concentration/adaptive population.
+User proposed future corner/edge-based map matching, especially reliable obstacle corners given greater weight, optionally fused with odom. Discussed only; NOT implemented.
+
+4. STRAIGHT DRIVING AND TURNING EVOLUTION
+User requested axis-aligned straight travel and in-place turns. Heading PID with small centreline lateral correction. Initially required visiting every grid centre; later requested travelling straight through collinear intermediate centres.
+Arrival originally relied on strict thresholds and could stop with 'passed endpoint but not within 5cm'. Later overshoot failure removed and reverse correction added. Current AMCL arrival radius is 0.05 m in 2D; this is an estimated-coordinate criterion, not a demonstrated 5 cm physical accuracy.
+Turning changed from chasing live AMCL heading to a fixed desired relative turn, accumulated from filtered odom yaw (EKF includes IMU), followed by a fresh AMCL observation and at most one corrective turn. Current angle tolerance ~0.035 rad (~2 degrees), turn timeout 25 s. User wanted smooth motion and less overshoot.
+In-place turn sends direct opposite equal wheel commands (T1) rather than normal T13 linear/angular motion. Direct wheel magnitude reduced from 0.20 to 0.12. Mission turn_speed=0.24 mapped with gain 0.50; this is NOT proof of physical 0.24 rad/s. Predictive stop uses measured angular speed and message age plus turn_brake_time=0.20 s. This braking parameter is empirical and uncalibrated physically.
+Straight tracking uses a point 0.30 m ahead on the fixed segment centreline, heading PID and velocity/steering ramps. PID derivative uses measured filtered odom angular rate rather than differencing AMCL jumps. Cruise speed=0.10 m/s, drive_acceleration=0.20 m/s^2, drive_turn_limit=0.35, steer_acceleration=0.5. Front/rear obstacle checks match current/desired travel direction; temporary obstacle map insertion/replanning is not active.
+User later explicitly allowed reversing and avoiding unnecessary 180-degree turns. Chosen body orientation may therefore face opposite route direction; negative linear speed traverses the route backwards.
+
+5. STOPPING AND SERIAL ISSUES
+An earlier all-sensor freshness condition could stop motion if any of raw odom, base, IMU, or lidar was delayed >0.5 s. Raw IMU/base freshness was decoupled from mission readiness; mission uses fused odom, scan and AMCL. Current code still has freshness checks (roughly 1 s), obstacle checks and driver watchdogs; it does NOT run indefinitely using stale localization. Do not claim all stopping thresholds were removed.
+Driver serial read previously used blocking readline while holding a shared lock, potentially delaying outgoing control. Replaced feedback read with available-byte buffering and parsing completed newline packets; partial packets no longer wait under the write lock. Small serialization lock remains to keep packets valid. This was a code-level risk and fix, not proof that it caused every real jerk.
+Driver feedback timeout increased from 0.5 to 1.0 s; cmd_vel timeout=0.8 s; heartbeat 20 Hz; feedback requested/published at 100 Hz. Startup handshake can still block before driver ready.
+Wi-Fi/SSH disconnections were reported, sometimes before navigation started. Root cause remains unconfirmed. Do not attribute all network issues to AMCL load.
+
+6. LATEST 70% ODOM + 30% LOCALIZATION SPEED CONTROLLER
+User explicitly clarified: even if AMCL reaches destination first, continue summing contributions; odom is more trusted for distance.
+Per straight segment, record initial filtered odom position and fix route direction in the odom frame using the segment-start map/odom orientation. Project net odom displacement onto that axis. Compare with segment centre-to-centre length. Once length reached, odom contribution is latched off for the rest of that segment, including reverse recovery.
+Before odom reaches length: +0.7*v in route direction. Afterwards: 0.
+AMCL contribution: +0.3*v if behind destination along segment; -0.3*v if beyond; 0 if within existing 5cm 2D arrival radius.
+Sum contributions and convert to forward/reverse robot linear command according to the chosen body orientation. Speed acceleration ramp retained. Stop only when odom has latched done AND AMCL is within destination radius.
+At v=0.10: both short -> +0.10; AMCL at target, odom short -> +0.07; AMCL past target, odom short -> +0.04; odom done, AMCL short -> +0.03; odom done, AMCL beyond -> -0.03.
+Targeted execution test of actual drive_line verified those values, latching despite backing up, and final stopping. This is NOT a complete realistic closed-loop robot test. Remaining issue to evaluate: odom starts from actual segment start but desired length is nominal centre-to-centre; inherited start-position errors and odom drift may require extra AMCL recovery.
+
+7. REVERSE PARTICLE BUG: INVESTIGATION AND CORRECTION
+User observed robot reversing while RViz particles moved forward, then reported they appeared stationary. Initial assistant suspicion focused on raw base dist_centre sign and odom direction, without measured robot evidence. That was incomplete. Current base driver computes delta_dist from successive dist_centre values; actual firmware behavior during reverse has not been confirmed from signed feedback traces.
+Reviewed upstream Navigation2 Jazzy DifferentialMotionModel::odometryUpdate. Original source sets delta_rot1=0 if translation magnitude <0.01 m, while delta_trans=sqrt(dx^2+dy^2) remains nonnegative. This creates a genuine forward prediction for small reverse steps. With 0.03 m/s reverse and ~8 Hz updates, nominal step is 0.00375 m, inside this branch.
+A local C++ test linked against the installed upstream motions_lib reproduced: -0.00375 m odom input -> +0.00375 m particle translation (zero motion noise). This is measured local software evidence, not speculation.
+First fix: custom plugin rb3302_amcl_motion, class nav2_amcl::RB3302DifferentialMotionModel. Small-step direction chosen from signed projection onto previous odom heading: negative -> pi, positive -> zero. All other upstream motion code initially retained. Config localization.yaml switched robot_model_type to custom class; mission package dependency added. No new runtime node, plugin loaded inside existing AMCL. Original license notices retained.
+User reported problem persisted on robot. Exact loaded class, TF displacement and post-resampling cloud were NOT remotely confirmed; SSH attempt timed out. Do not state that robot was running a particular build just because upload commands were provided.
+Second/latest fix, requested explicitly by user: replace the motion update with signed 2D displacement transformation for ALL step sizes; delete the 1cm special case. Convert odom delta dx/dy into previous robot-local forward/sideways components, rotate into each particle's map heading, and apply displacement. Zero odom translation and rotation returns unchanged, no injected motion noise. Pure rotation changes heading only. Translation noise changes magnitude with nonnegative scale, so it cannot flip direction. Heading noise retains alpha1/alpha2 variance, translation variance alpha3/alpha4. Clipping Gaussian displacement magnitude at zero introduces a small positive magnitude bias; this is a documented tradeoff, not a mathematically unbiased standard AMCL model.
+Laser likelihood weighting/resampling were NOT changed. They change the particle distribution after prediction. AMCL reads odom TF at scan time, not cmd_vel or merely /odom.twist. Thus a negative /odom velocity alone is insufficient proof of what AMCL received.
+
+8. LATEST SIMULATION RESULTS (LOCAL, NOT GAZEBO OR ROBOT)
+Used actual compiled upstream and modified motion-model libraries with 1000 particles, alpha1..4=0.2, 20 random seeds. Sequence at 8 Hz: forward 0.60 m at 0.10 m/s, reverse 0.60 m at 0.03 m/s, stationary, rotate 90 degrees, forward and reverse again.
+Two modes: prediction only; prediction plus a simplified synthetic position/heading likelihood and resampling. Synthetic observation uses true pose as centre, 3cm position scale and 3deg heading scale; it is NOT actual lidar, actual map matching, wheel-slip simulation, or sensor-delay simulation.
+Measured first reverse leg mean particle displacement (true odom displacement -0.600 m):
+- Upstream, prediction only: +0.5990 m (WRONG direction).
+- Modified, prediction only: -0.6006 m.
+- Upstream, synthetic observation/resampling: +0.0470 m (little forward drift, resembles staying near original location).
+- Modified, synthetic observation/resampling: -0.6000 m.
+Whole sequence mean position RMSE: upstream prediction 1.0646 m, modified prediction 0.0024 m; upstream synthetic observation 0.3622 m, modified synthetic observation 0.0012 m. These idealized simulation errors MUST NOT be advertised as real localization precision.
+Separate targeted tests: forward/reverse at four headings; small and large steps; pure rotation; zero motion unchanged; signed lateral displacement retained; nonzero configured noise does not reverse displacement sign. Both rb3302_amcl_motion and rb3302_mission compile locally.
+Test harnesses currently in /tmp/check_amcl_reverse.cpp, /tmp/check_signed_amcl.cpp, /tmp/sim_amcl_signed.cpp, /tmp/check_weighted_drive.py. /tmp is temporary; archive needed before formal report reproduction.
+
+9. KNOWN OUTSTANDING ISSUES / NEXT SESSION
+Latest signed-vector model is saved/compiled/simulated locally. No confirmed robot trial of this latest version. Verify loaded robot_model_type and actual TF-based motion before claiming success. Preserve real before/after logs and video if available.
+Separate older startup failures: lidar device-info timeout; mission sometimes started using fresh messages before new local driver/lidar ready. Could be residual processes or another publisher on domain 7; exact source not proven. Lidar wrapper shutdown was sometimes escalated to SIGKILL; shell trap/child lifecycle not fully fixed. Current launcher does not prove messages belong to the current run. These are independent from the confirmed small-reverse AMCL bug.
+User asked for Gazebo with same algorithm then postponed/cancelled. No Gazebo environment or simulation implemented. Latest C++ tests are algorithm simulations only.
+One log showed goals B,C,I then endpoint-overrun failure on final G, despite user impression task completed. Do not report all four passed for that trial. Later code removed that overrun abort.
+
+10. FILES / ARTIFACTS / REPRODUCTION
+Mission: student_ws/src/rb3302_mission/rb3302_mission/{node.py,robot.py,grid.py}.
+Configs: student_ws/src/rb3302_mission/config/{control.yaml,localization.yaml,course.yaml}.
+Custom AMCL: student_ws/src/rb3302_amcl_motion/{differential_motion_model.cpp,differential_motion_model.hpp,CMakeLists.txt,plugins.xml,README.md,package.xml}.
+Driver: robot_ws/src/waverover_base/waverover_base/waverover_driver.py.
+Launch one terminal: bash ~/rb3302_fresh/run.sh A E B,C,I,G (robot initially A centre, facing E/B).
+RViz on laptop: bash ~/rb3302_fresh/rviz.sh. Fixed frame map.
+Upload requires mission + custom AMCL package; driver too when it changes. Build custom AMCL and mission together; source workspace overlay. SSH and robot commands should be provided separately to user.
+Backups under backups/, including weighted_distance_20261026_174026, amcl_reverse_* and signed_motion_20261026_180747. Earlier backups cover coarse grid, removing legacy packages, compressed paths, relative turns, serial changes, bidirectional driving and freshness changes.
+Useful source references:
+https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_amcl/src/motion_model/differential_motion_model.cpp
+https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_amcl/src/amcl_node.cpp
+https://github.com/ros-navigation/navigation2/blob/jazzy/nav2_amcl/src/sensors/laser/likelihood_field_model.cpp
+https://docs.nav2.org/jazzy/configuration_and_development/configuration_guide/others/configuring_amcl/
+
+SELECTED ROBOT LOG REFERENCES (LOCAL ATTACHMENTS)
+/home/rb3302-7/.codex/attachments/29836068-cd6e-45df-8264-02672d4f9d52/pasted-text.txt : B completed, B->C ongoing, ~8.2Hz localization, Ctrl+C; no reverse displacement trace.
+/home/rb3302-7/.codex/attachments/07a67c4d-bf70-44c1-b1f6-7fe98b89c646/pasted-text.txt : turn overshoots ~13-16 degrees, final endpoint overrun failure.
+/home/rb3302-7/.codex/attachments/89d0a7e0-926c-4b03-ad1f-351110dd40a3/pasted-text.txt : lidar timeout/startup and shutdown evidence.
+/home/rb3302-7/.codex/attachments/fd9f628b-6090-4639-9af5-1122759cf584/pasted-text.txt : earlier startup failure.
+
+REPORT STRUCTURE SUGGESTION
+Requirements and hardware -> supplied code and initial baseline -> cleaned map and 60cm planning graph -> centreline controller and turn strategy -> localization and serial integration -> real failure observations -> confirmed AMCL small-reverse bug -> signed-motion redesign -> software simulation results -> separate real robot results -> limitations/future work. Attribute teacher, upstream Nav2, and student/custom changes clearly. Do not hide failures or claim the simplified simulation validates complete robot navigation.
+
+2026-10-28 FOLLOW-UP: USER REPORTS REVERSE PARTICLES STILL WRONG
+Performed active-code-path review; see report_evidence/CODE_REVIEW_20261028.txt and accompanying reproduction sources. No runtime code was edited during the review. Found a NEW defect introduced by the signed AMCL rewrite: clipping Gaussian translation magnitude at zero creates substantial near-pure-turn drift (1 micrometre odom translation +0.05 rad turn -> mean 8.97 mm translation). Previous simulation omitted this case; its successful straight/reverse result is not enough to claim general model correctness. Also reproduced raw odom repeated-sample zero/spike publishing, zero covariance, invalid yaw-unit inference, and a controller convergence counterexample. Default RViz has no particle-cloud display. Firmware reverse distance semantics and actual remote AMCL model remain unconfirmed; read-only SSH timed out. Do not state that reverse localization is fixed or that all current code is correct.
+
+2026-10-28 REVIEW FIXES IMPLEMENTED (LOCAL, NOT UPLOADED)
+Driver: odometry only published for a new complete feedback snapshot, differentiated over receipt intervals; no repeated zero samples on timer ticks. Explicit yaw_units=radians default replaces magnitude inference (firmware units still unverified, EKF ignores raw yaw). Positive vx/angular variances are provisional estimates. Angular velocity derived from measured yaw change, not commanded turn. Partial T1001 cannot refresh readiness. Once-per-second diagnostic compares command, measured vx, centre/left/right distance increments and encoders, without throttling the data stream.
+AMCL signed-vector-v2 replaces zero-clipped Gaussian magnitude with a mean-one positive lognormal multiplier; absolute translation noise scales continuously with translation distance. Reverse sign retained. Near-pure-turn reproduction (dx +/-1e-6, turn .05): mean dx now +/-1.00172e-6 instead of +/-0.00896888. Startup prints version explicitly; class name unchanged. This noise distribution remains a custom uncalibrated model.
+Control: AMCL position consistently selects speed sign, steering target and arrival; filtered yaw still provides current heading. Odom target uses initial remaining projection rather than blindly repeating nominal centre-to-centre length. Before odom latch, user's 70/30 contributions unchanged. After latch, endpoint recovery selects actual approach gear and applies cos heading projection to the 30% speed; aligned corrections retain +/-0.03 m/s, large-angle corrections slow to avoid orbiting. Previously divergent 0.4m lateral-offset case now arrives in ~11.42s, within 5cm. This is an ideal unicycle simulation, not physical accuracy evidence.
+Launch: local run.sh flock guard; duplicate publishers including identical mission node names checked; any launched process exit shuts down the task. Raw odom freshness added at existing 1s criterion to avoid relying only on continually predicted EKF. This is not proof of publisher provenance in arbitrary external ROS-domain interference.
+Lidar wrapper runs node directly, waits/terminates its child before restoring previously active motor service; EXIT cleanup only once. Fake-child/service test passed, no physical devices accessed. URDF chassis corrected to20x20cm; sensor TF retained pending physical mounting evidence. RViz explicitly displays ParticleCloud. Docs synchronized, battery threshold spelling fixed.
+Validation: five changed packages compiled (waverover_base,robot_model,rplidar_ros,rb3302_amcl_motion,rb3302_mission). New-sample timing/sign/covariance/unit tests, 70/30 latch checks, eight ideal controller cases, noise/reverse/stationary/lateral tests and lidar cleanup test passed. Test harness setup initially needed ROS_LOG_DIR=/tmp and launch cmd substitution handling; corrected without robot operations.
+Remaining limitation: actual ESP32 dist_centre semantics, yaw units and actual loaded robot binaries still not verified. No code flips measured odom based on commanded direction. Robot is not claimed fixed until real reverse feedback confirms the entire chain. Next upload must include all five changed packages and run.sh, not only mission and AMCL.
+
+LATEST USER CHANGE: Real reverse particle behavior still reported wrong. User authorized removing reverse entirely. Mission now faces each planned segment, never publishes negative linear velocity, and turns toward a behind-target before endpoint recovery. In-place opposite wheel rotation remains. This is an operational fallback, not a claim to have resolved reverse odometry/localization. Only rb3302_mission changed in this pass.
+
+LATEST SIMPLIFICATION: User requests centre correction only at the four designated goals. Added precise flag per segment (destination==requested goal). Intermediate turn points use along-route AMCL crossing, not a 2D centring manoeuvre; no backward or turn-around recovery there. Still stop and turn at corners and track centreline during travel.
+
+X N X,O,Q,X startup failure: robot log confirms signed-vector-v2 loaded, but ROS YAML interprets bare N bearing as BOOL False despite launch ParameterValue(str). Mission exits before motion; lidar SIGINT exit130 is shutdown consequence. Fixed enum transport by prefixing start with cell_ and bearing with dir_ in launch, stripped by mission. Also covers start N. Public run.sh CLI remains unchanged.
+
+2026-10-28: Added stop + four fresh blocked scans over >=0.5s, then dynamic obstacle A* replanning. Temporary laser obstacles exclude intersecting edges for 15s; no route waits stopped. Virtual start attaches only to current corridor edge. Cardinal 60cm centres, compressed straight segments, goal-only precise centring, forward-only remain. Not robot tested.
+
+2026-10-28: User log repeated single-point 16cm turn veto. Removed that veto. Dynamic replanning now recognises a contiguous cluster reaching both +/-25cm lane edges in a 60cm lane (5cm edge allowance), >=5 points, <=8cm sample gaps; four fresh stable scans over >=0.5s. Stores ONE corridor wall, overwrites old detection, 15s retry expiry retained. Small objects are excluded from road-closure replanning; no small-object local avoidance added. Goal-only centring unchanged. Not robot tested.
+
+2026-10-28: Early corner departure: previously AMCL projection alone ended ordinary segments. Require latched odom completion AND AMCL crossing. No ordinary-corner 2D correction added. Goal acceptance reduced 5cm->1cm, stop and recheck a new AMCL update before declaring arrival; log correction entry and remaining x/y error. Exact equality is not a physically reliable completion criterion. Not hardware validated.
+
+2026-10-28: User requested restoring goal tolerance to 5cm. Run log showed repeated 90-127 degree turns chasing 2-4cm residuals under 1cm acceptance. Restored 0.05m; corner odom+AMCL completion and stopped-position recheck retained. Not hardware tested.
+
+2026-10-28: User observes turns physically wide and requests 10cm later corners. Added corner_extension=0.10m along incoming direction for non-goal turning waypoints only. A* grid and goal coordinates unchanged, goal tolerance remains 5cm. Compensation is empirical, not a measured turn-centre calibration. Syntax checked, not robot tested.
+
+2026-10-28: Log stuck in a single 82.3deg main turn for >10s with AMCL ~8Hz; accumulated odom angle missing, root cause not proven. Turn commands now bounded to <=0.4s bursts with explicit zero command and post-stop stable AMCL wait between bursts; 45s total turn limit, 15s stable wait failure stops task. Stable means >=4 new post-stop poses, >=0.5s, <=2cm/2deg spread, low measured yaw rate, covariance std <=15cm/15deg. Motion pauses for anchor innovation >5cm/5deg or high covariance. Existing >50cm/30deg fatal disagreement retained. Logs burst odom rotation for diagnosis. Instantaneous motor speed unchanged (minimum motor command would defeat a mere turn_speed reduction). Not hardware tested.
+
+2026-10-28: User requested rollback after failed pulsed-turn test. Restored node.py and control.yaml from pre-10cm-extension backup, robot.py from pre-turn-settle backup. This reconstructs the 5cm goal version that logged goal4 X completion at1780680816.986. Removed 10cm corner extension and burst/settle behavior; retained full-roadblock-only latest obstacle and arrival odom+AMCL checks. Current experimental files backed up to /home/rb3302-7/rb3302_fresh/backups/before_restore_20261028_160144. Byte equality to selected backups checked. Robot not uploaded.
+
+2026-10-28: On restored successful baseline, user explicitly requested ONLY +0.10m incoming straight-line endpoint for non-goal corners. Added two lines in node.py; all parameters, turning, localization, obstacle logic and goal behaviour unchanged. Syntax checked; no robot run.
+
+2026-10-28: User reports driving into full-road obstacle with no stop message. Detection was limited to22cm forward depth; widened observation to60cm, capped at current driving endpoint so walls beyond that segment do not trigger. Confirmed barrier still stops immediately for four fresh scans/0.5s then replans; latest-only obstacle, full-width requirement, successful motion and10cm extension unchanged. Detection failure diagnosis inferred from code, no raw scan supplied. Not robot tested.
+
+2026-10-28: User deferred all further obstacle work. Reverted unuploaded60cm observation changes; retained successful baseline plus10cm corner extension. Existing full-roadblock detection remains, no local avoidance added. Restored files verified byte-for-byte.
+
+2026-11-02: Added separate Pure Pursuit, differential-drive Stanley and DWA experiments with common smoothed path runner. Original node.py, robot.py, grid.py, control/localization configs and run.sh verified unchanged by SHA256. Separate run_controller.sh selector. Goal approach decelerates toward0.03m/s from0.10m/s. Actual-map ideal-model checks; no robot actuation or AMCL changes. See CONTROLLER_TRIALS.txt.
+2026-11-02: Goal stopped review requires AMCL measurement timestamp later than stop, not merely later receipt. Deceleration and halt use existing pause callbacks/no-motion requests; AMCL never suspended.
+
+2026-11-02: Clarified user means remove legacy fixed90deg maneuver, NOT ban in-place rotation. Removed rear-target/high-heading rejection; PP aligns to live pursuit bearing, differential Stanley scales v by positive heading cosine, DWA includes zero-v candidates. Path reversals no longer rejected. No minimum turning radius or wheel-sign prohibition added. AMCL and legacy mission untouched.
+
+2026-11-02: All four controllers share cell-centred obstacle detection. Map-wall returns filtered; sizeable surface near cell centre confirmed over >=4 fresh scans and >=0.5s. Single blocked_cell replaces old cell, A* skips blocked cell and robot-clearance envelope. Virtual start only attaches through clear nearby connections. Current goal never skipped; no path waits. Old cell removed only on confirmed new cell or >=4 scans visibly clearing old centre. New controllers restart whole smoothed path after confirmation; localization and controller formulas unchanged. Tests pending.
+Validation: synthetic cell detection/noise/static-wall rejection, single-cell replacement, blocked goal, clear-ray recovery and fresh-scan confirmation tests passed. Actual refined map: block R or Q -> X,W,V,U,O,P; block goal P -> no route. Virtual-start smoothed detour clear. Three controllers still complete X,P,G,X in ideal model. Colcon build passed. No real robot upload/run performed.
+
+2026-11-02: Scope narrowed by user to legacy straight/in-place-turn controller. Restored its successful motion +10cm corner extension and original 60cm cardinal Manhattan A*. Removed broad dynamic obstacle exclusion zone and stationary confirmation loop. A new CellObstacle observes four distinct scans while moving, accepts only clusters in the central 40cm square of a 60cm cell, excludes mapped walls, retains one latest occupied cell. Outside central region ignored. A* skips only occupied node. AMCL and three experimental controller files unchanged; experimental modes deferred, not claimed ready. Source package and legacy build verification prepared separately. Physical obstacle dimensions not supplied: central-region detection remains a geometric assumption, not verified on robot.
+2026-11-02 verification: legacy package compiled; actual-map A* compared against BFS for all start/goal/blocked-cell combinations (14400). Online obstacle state tested with synthetic scans. Motion method ASTs match successful baseline apart from replan trigger. rb3302_legacy.tar.gz includes both workspaces sources, maps and launch scripts, verified archive bytes; prepare_robot.sh builds both and checks legacy entrypoint. Other three experimental algorithms deferred by user. No robot upload or real run performed.
+
+2026-11-02 follow-up: Added goal-only advance slowdown to legacy drive_line. Cap decreases linearly inside30cm (existing lookahead_distance) from0.10m/s to0.03m/s minimum approach speed, based on nearer odom/AMCL remaining distance. Existing70/30 contributions, acceleration smoothing, final arrival checks and AMCL updating stay active. Ordinary corners unchanged. Actual added block tested at60/30/15/5cm and corner case; passed. Repacked archive. Not hardware validated.
+
+2026-11-02 real robot log59cbb1c7: obstacle switches N->S->N trigger -160.5/-178.4/+175.9degree turns. Confirmed software defect: candidate excluded current blocked cell, so persistent multiple detections could alternate every4 scans; ANY cell update interrupted current route. Fixed by retaining currently observed cell, requiring4 scans of replacement when absent, and replanning only if updated cell belongs to remaining route. Passed regression using actual detector and Robot.blocked method. Goal slowdown and motion unchanged. False-object classification and physical centreline accuracy remain unverified: log contains no raw scans or continuous lateral-error trace. Archive refreshed.
+
+2026-11-02: User requests stable LARGE cell-centred obstacle, whole-cell area, stronger lateral correction. Detector now requires contiguous>=20cm surface and >=4 unique scans spanning>=0.5s with centroid within5cm of first reference; retains centre-region/map-wall filters and latest-only state. Planner explicitly checks entire60x60cm occupied square against edges, allows exit if already inside. Legacy steering uses contemporaneous propagated pose x/y/yaw; lateral gain2 vs previous implicit1, angular cap0.50 vs0.35rad/s, heading PID unchanged. Goal slowdown/5cm review retained. Once/sec lateral error and steering log added to distinguish saturation from localization/motor tracking. Thresholds are provisional detection geometry, not measured object dimensions. Pending focused tests; not real calibration.
+Validation: actual detector duration/centroid stability, connected surface, off-centre/small/scattered/duplicate rejection and stable identity/replacement passed. Occupied-area line-intersection and outward escape tests passed. Actual steering block in ideal forward model recovered +/-10cm offset for all4 headings. These do not establish real obstacle recognition accuracy or motor calibration. Refreshed source archive and checksums.
+
+2026-11-02 USER OVERRIDE: current legacy runtime must differ from successful baseline ONLY in obstacle handling. Restored initialize/turn/turn_relative/drive_line and complete control.yaml from obstacle_lookahead_20261028_161808 (successful baseline plus10cm). Removed later goal advance slowdown, cross_track_gain2,0.50rad/s cap, propagated-position steering changes and lateral diagnostics. Kept only stable large cell obstacle, full60cm occupied area, latest-only state, on-route replanning and obstacle-specific resume/wait code. AST equality checked for all motion methods (only obstacle callback name differs), byte equality for control.yaml, unchanged Robot methods apart from map/obstacle handling. No robot upload/run; no claim this rollback alone fixes previously identical turn completion logic.
+
+2026-11-02: User explicitly defers obstacle handling; wants only previous successful movement. Robot.blocked now unconditionally returnsFalse, so fresh launch retains blocked_cell=None and no sensor detection can trigger obstacle stops or replanning. Static map walls and localization remain active. Motion methods and parameters rechecked against successful+10cm baseline; unchanged. No physical robot run. Archive regenerated.
+
+2026-11-02: User requests direct copy of successful version, no reconstructed motion. Copied node.py,robot.py,control.yaml byte-for-byte from obstacle_lookahead_20261028_161808; copied original matching grid.py from pre-cell-change backup cell_obstacles_20261102_154741. Restores successful+10cm version INCLUDING its original full-roadblock logic; no newer cell obstacle code or forced-disable override is invoked. All4 copied files byte/hash verified. Robot log11973304 shows single85deg turn reaching25s timeout; original turn methods were already identical before this exact restore, so this copy is not proof the live angle-feedback issue is solved. No remote execution or hardware run.
+
+2026-11-02 RViz request: Added display-only costmap_view.py, started by laptop rviz.sh, publishing/planning_costmap from/map with the SAME static wall/unknown inflation as successful A* and control stop_distance. RViz enables a costmap overlay. No navigation launch/controller/AMCL changes, no cmd_vel publisher, no dynamic laser costmap or obstacle avoidance. Original4 copied files still byte identical.
+
+2026-11-02: Explicit user request replaces OLD obstacle logic with NEW stable large central-cell obstacle logic. Restored obstacle integration from backups before exact copy; old road_block/15second expiry logic removed from active path. Successful turn/drive methods and control.yaml checked unchanged (only drive obstacle callback renamed). Latest-only60cm occupied square, stable>=0.5s>=4fresh frames, connected>=20cm surface,5cm centroid stability, only replan for remaining-route obstruction. RViz costmap unchanged. Endless-turn root cause still unresolved; this obstacle replacement is not claimed to fix it.
+
+2026-11-02: User requests turn deadline5s instead of25s. Changed shared turn deadline to5s, keeping successful turn math otherwise. Added target/cumulative odom angle/yaw-rate logging every0.5s and timeout cumulative angle. Actual turn_relative executed with fake fresh normal/frozen/opposite odom: normal ends1.35s; invalid progress stops at5.05s with finalzero command. Demonstrates code permits stale VALUE despite fresh timestamp and opposite progress, not proof which occurs on real robot. New obstacle integration retained.
+
+2026-11-02: User requests timed turns instead of waiting for odom angle. Replaced turn_relative with fixed-duration command; provisional2.5s per90deg estimated from successful97.9deg run (~2.94s including stopping/review). Removed subsequent AMCL corrective turn/retry after timed completion; initial desired angle still based on route direction minus current estimated heading. Hard scheduling deadline5s, finalzero command. Existing straight drive PID/lateral tracking, velocities and goal rules unchanged by AST check; new obstacles andRVizcostmap retained. Tested actualmethod +/-90,180,85deg without any odom API. Physical angle vs duration remains uncalibrated; timing is not an exact-angle guarantee.
+
+2026-11-02: Removed guessed 2.5s/90deg. Timed turning now measures first 0.4s response separately per direction using settled, newer-stamped AMCL poses; calculates remaining time from measured rate. Main timed turn followed by at most one AMCL corrective timed turn and final verification. Missing/stale localization, unreliable calibration, >5s cumulative active turn or failed final alignment stops with explicit error, never silently declares success or repeats turn. Opposite correction uses opposite calibrated rate when available, otherwise same magnitude estimate. Straight drive_line AST unchanged. Calibration includes mechanical response/AMCL errors and does NOT guarantee physical angle accuracy. Robot validation pending.
+
+2026-11-02: Added sim.sh and sim/ Gazebo world generator, hardware adapter, ROS bridge and launch. Uses same current mission/EKF/AMCL and map; no navigation edits. Exact map occupancy reconstruction check passed (396 occupied cells -> 15 rectangles), four-wheel joint wiring and launch-loading passed. Domain77 localhost isolates simulation. Gazebo installation blocked by sudo password, no dynamic simulation claimed. 20cm body,18cm track and3.3cm radius modeled, not measured; wheel command response idealized. Current short-turn calibration motion remains because interrupted rollback did not execute.
+
+2026-11-03: Independent clean navigation rewrite, old mission untouched. 60cm cardinal A*, 16cm clearance, pure pursuit, bounded odom-relative turns, stopped AMCL goal review, one stable centre-cell obstacle and replan. Uses ROS clock throughout control. Actual Gazebo headless full routes and compatible Ogre GUI tested. Final no-obstacle X,O,Q,X and Q-blocked X,P,G,X complete; independent ground truth and 20cm-body collision checks recorded in report_evidence/clean_navigation. Physical robot remains untested. Code, scripts and evidence bundled as rb3302_clean.tar.gz.
+
+2026-11-03: Added six actual Gazebo regression cases, all24 goals complete, no geometric overlap or false occupied-cell labels. Changed starts/headings, 30/35/40cm obstacle cases, plus4cm/-2cm/5deg spawn offset and lidar/gyro noise. All runtime topic audits verify ground truth consumed only by evaluator. Actual5cm goal precision passed 18/24, maximum true goal error6.55cm; do not conflate completion with precision. Navigation sources unchanged. Added replay harness and configurable simulation scenarios; fixed duplicate visual/collision names in SDF without altering geometry. Evidence report_evidence/matrix_tests.
+
+
+2026-11-03 简化原版运动（与autonomous独立保存）
+
+最新用户要求优先：直接采用AMCL位置和朝向；60cm四方向A*，压缩到转弯点和终点；普通直线0.08m/s，保留中心线横向纠正与朝向PD；普通转弯点沿来向延长10cm停车，再原地转90度；进入最终goal格子用低速Pure Pursuit（最高0.02m/s）对齐，AMCL中心误差5cm内停车复核3次，保持3秒。暂不处理动态障碍。
+AMCL内部仍使用里程计运动模型；任务控制不再另加odom/AMCL位置或距离权重。IMU角速度转到车身坐标后积分，只用于相对转角及转向阻尼。连续转角期间不追逐AMCL跳变目标；失去反馈停车，保留有界超时，防止持续转圈。
+普通路径转角为90度；任务开始/从一个goal出发时需对准下一条直线，因此这时转角可以不是90度。进入goal格子后有0.3秒切换停车，再低速对齐。最终goal没有指定朝向。
+底盘独立legacy_base入口发送T13 SI线/角速度，避免父驱动原有的最低轮速提升；共享底盘源码及autonomous版本未改。
+
+最新代码实际Gazebo结果：report_evidence/legacy_turn_20261103_150826/result.json
+X朝N，任务X→O→Q→X，无动态障碍：126.495秒，包含所有转弯、对齐和四次3秒等待；零检测碰撞；4/4到达，goal中心均在20cm车身投影内。实际中心误差约0、6.70、3.43、4.62cm。AMCL判定5cm不代表真实位置必然5cm内。两次90度转弯实际约89.20、-89.22度。
+三分钟要求针对完整任务；这组路线剩余53.505秒。不能据此保证任意四点组合或实机都在180秒内。尚未实机验证。本次没有运行障碍测试。
+
+过程记录：最初IMU四元数转角方向受倒装影响，改为TF变换后的角速度积分。旧70/30直线逻辑的145052测试通过；145245障碍测试失败（239.811秒且有碰撞），没有作为通过证据。随后按用户新要求去除自定义位置融合、距离加权及动态障碍流程，重写robot/node并精简grid，运行上述150826测试通过。
+独立autonomous版保持原有六组测试及原压缩包内容，不以此次原版简化替换它。
+
+2026-11-03 实机反馈后的简化原版调整：
+实机日志e7691654中起步微调-4.9度，约3.2秒触发转弯超时，随后all.launch的通用OnProcessExit使所有节点退出。trap为雷达退出清理，不是最先触发原因。日志不能单独证明未转够是静摩擦、反馈还是执行原因。
+普通直线0.08→0.10m/s，最大转速0.50→0.65rad/s；转弯末段最低命令0.10→0.25rad/s（实机待验证）。转弯超时按最低命令速度估算加3秒，不再按最大速度估算。每次固定相对转角，IMU积分达到后发零速度，不用AMCL等待转弯。起步角度在直线比例控制输出能力内时边走边纠正，不单独执行小角度原地微调。
+朝向PD加入Ki=0.08积分，积分绝对值≤1rad*s，输出饱和时抑制积累；中心线横向纠偏保留。终点速度0.02m/s、5cm复核及3秒停留未变。
+移除all.launch内任意节点退出即关闭全套的联动；仍保留反馈丢失和转弯超时停车。用户要求不重复测试，本轮Gazebo主动停止，不宣称最新参数完成全程验收。之前126.495秒属于修改前参数。autonomous版本未改。
+
+2026-11-03 修正任务异常退出：任务运行异常（包括转弯超时）捕获后发布零速度，继续spin接收AMCL/IMU/雷达并请求静止定位更新，不销毁节点、不自动重试、不进入下一段；Ctrl+C才退出。节点尚未构造成功的启动错误仍退出并报错。all.launch已无整套退出联动。未重跑Gazebo；不宣称解决了实机转不够角度的原因。
+
+2026-11-03 按用户最新要求：原地转弯改由AMCL朝向反馈，不再使用IMU角速度积分判断转角。开始时固定相对角度，展开AMCL跨±pi的朝向差；达到或越过目标即发零速度，接近目标减速。AMCL失效停车等待；超时保持任务存活、停车并报告实际AMCL转角。直线PID/横向纠偏及速度未改。未重新仿真或实机验证。
+
+2026-11-03 按用户要求整体清理原版：删除转弯总时限、旧obstacles模块、controllers目录及全部旧入口；删去mission.launch遗漏的退出联动；任务完全使用AMCL朝向，删除任务IMU订阅/TF/积分，PID微分改由AMCL相邻朝向消息计算。底层定位用EKF/IMU、静态地图规划与RViz显示保留。备份：/home/rb3302-7/rb3302_fresh/backups/before_clean_active_20261103_155038。只检查源码与入口一致性，未重跑仿真。
+
+2026-11-03 用户明确删除第二条：移除main异常处理中的无限发零速度/等待Ctrl+C循环。运行错误记录后由finally发零速度并清理任务节点，返回非零退出码；启动文件无退出联动，其他节点继续。定位过期等待和正常终点复核未改。只做语法检查，未运行仿真或机器人。
+
+2026-11-03 用户要求目标点与普通转弯点同样处理：统一沿来向中心+10cm停车；删除目标格子提前退出、Pure Pursuit对齐、5cm/三帧复核及相关参数，初始化/首段朝向改为读取有效AMCL而非三帧复核，目标保留3秒停留。角度只新增发停车时与0.3秒后新AMCL的过冲日志，没有凭空修改转角补偿。附件8884178c没有转弯记录；唯一可算目标X对齐0032.058→0044.847约12.789秒。未重跑仿真或实机。
+
+2026-11-03 用户澄清：需要停留的goal目标为格子中心，不加10cm；仅普通转弯点延长10cm。沿路线剩余投影距离remaining<=0才发停车，不使用5cm等提前到达阈值；无目标Pure Pursuit或反复复核，目标停3秒。实际停车误差仍受AMCL误差、更新周期和底盘制动影响。未运行实机/仿真。
+
+2026-11-03 用户估计过冲并指定提前15度停车：增加turn_early_stop_degrees=15.0，转弯剩余量扣除15度后用于减速和零交叉停车；90度在AMCL测得75度时发零速度，小于等于15度不单独原地转。不是已测得/标定的过冲值。直线、目标点到达规则不变，未重跑仿真或实机。
+
+2026-11-03 用户说明实车转向看起来已够90度，保留15度提前停车，不把AMCL少转视为真实车体少转。直线控制移除heading-atan(cross/0.30)虚拟目标朝向，改为固定路线朝向PID加独立横向角速度项-0.8*cross；PID暂用1.0/0.02/0.02，避免原横向10cm造成18.4度目标朝向变化再叠加朝向反馈。每秒记录横向误差、朝向误差和角速度以便实机定位问题。这是待验证改动，不宣称定位偏差或转向问题已解决；未运行仿真。
+
+2026-11-03 用户要求仅直线尝试Stanley：替换drive_line为差速底盘/车体中心参考的Stanley式角速度控制，v取指令0.10m/s，heading_gain=1.0，cross_gain=0.4，soft_speed=0.10；10cm横向偏差在朝向零误差时产生约0.197rad/s的回线角速度，左右符号一致。删除原直线PID参数与I/D状态，保留原角速度上限0.35。face_first_line使用新朝向增益（数值仍1.0）；转弯补偿15度、角点延长10cm、goal中心零投影停车及3秒停留未改。仅源码语法检查，未重跑仿真或实机。
+
+2026-11-03 根据XUNX实机数据（有横向过线反摆与0.35rad/s饱和），调整直线Stanley：车体前方10cm参考点用于提前回正，朝向增益1→1.5，角速度上限0.35→0.50rad/s；横向增益0.4和直线速度0.10保持。删除face_first_line，跨goal保留名义路线朝向，所有原地转向仅按路线方向差执行±90/180度（含用户保留的提前15度发停车），不按AMCL计算169.2等对准角度。几何中心连线、角点沿来向+10cm、goal中心零投影停车未变。代码检查未重跑Gazebo/实机，不宣称问题已完全解决。
+
+2026-11-05T12:10:13 用户指定只改直线为PID+Stanley；保留P=1.5及Stanley原强度，加入Ki=.03/Kd=.08，AMCL时间戳差分，D一阶滤波.20秒，积分输出±.05rad/s防饱和。AST对比确认其他函数完全未改。未运行实机或完整仿真。备份：/home/rb3302-7/rb3302_fresh/backups/before_pid_stanley_20261105_121013。
+
+2026-11-05: 用户要求将普通转弯点沿入弯中心线的延长距离从10cm减为5cm。Goal仍在原中心停车；Stanley虚拟前方参考点仍10cm，PID和转弯逻辑不变。仅语法检查，未实机验证。
+
+2026-11-05: 仅直线改为最新map→odom→base_link TF位置；D项使用现有EKF /odom的车体角速度（来源IMU），不再差分AMCL朝向。保留AMCL转弯、15度提前停、5cm延长、10cm参考点及所有增益。保留原1秒有效性要求，并同样检查所用TF/odom；数据暂不可用发零，恢复后继续，无新超时退出机制。备份：/home/rb3302-7/rb3302_fresh/backups/before_continuous_pose_20261105_122648。仅本地检查，未实机验证。
+
+2026-11-05: 用户要求提高定位计算量：EKF 30→50Hz，AMCL显式1000–3000粒子/120束；保持每帧更新和运动逻辑。未测机器人负载或实时性，不声称最优或满算力。修改前任务包备份：/home/rb3302-7/rb3302_fresh/backups/before_localization_density_20261105_124707
+
+2026-11-05: 根据用户实测相邻中心58cm，将当前任务A*邻接/启发式/24个坐标/RViz网格同步修正。新地图rb3302_refined_58cm.yaml：比例58/60，左右外墙各内移原始1像素，墙轴范围0..3.48/0..2.32m；保留内部墙拓扑、原始地图和运动控制。墙厚未实测，保留单像素表示。全24点连通且邻接与旧图相同，未实机验证。备份：/home/rb3302-7/rb3302_fresh/backups/before_grid58_20261105_125929
+
+2026-11-05: 用户要求保持运动逻辑，仅在转弯停车目标/goal前15cm沿程减速，0.10线性降至0.04m/s，到点判定仍remaining<=0。Stanley分母继续使用原巡航速度，保持角速度计算不变；保留转弯点延长5cm。新增日志剩余距离和前进指令。未实机验证低速响应。备份：/home/rb3302-7/rb3302_fresh/backups/before_approach_slowdown_20261105_131553
+
+2026-11-05: 用户要求取消转弯前额外5cm，转弯点和goal目标统一为格子中心。保留最后15cm减速/最低0.04m/s、原PID+Stanley和转弯控制；到点仍按纵向投影，未新增横向到点约束。语法检查通过，未实机测试。备份：/home/rb3302-7/rb3302_fresh/backups/before_remove_corner_extension_20261105_132339
+
+2026-11-05: 新增mission_arc为默认任务，普通途中90度角改半径0.18m的切线圆弧、前进0.06m/s，基础角速度0.333rad/s加TF切向/径向反馈。入弯前减速到0.06，弧线入口/出口不停车；goal仍减至0.04并停车。起步换向/180掉头保留原地转弯，地图净空不足时同样保留；没有把底盘T13替换为不确定的T1。原mission保留，可用RB3302_MISSION=mission运行。备份：/home/rb3302-7/rb3302_fresh/backups/before_arc_motion_20261105_134624。未实机验证。
+
+2026-11-05: 弧线版按用户要求只在goal前减速；普通弧线入口及净空不足的中间转弯点前保持巡航0.10m/s。弧内0.06m/s和角度控制不变；原mission版本不动。语法通过，未实机验证。备份：/home/rb3302-7/rb3302_fresh/backups/before_goal_only_slowdown_20261105_140024
+
+2026-11-05: 用户要求弧线转得更充分。弧线角速度上限0.5→2.0rad/s（底盘现有指令上限），朝向增益1.5→3.0；出弯增加5度内朝向判定，若位置先到出口则停止前进，仅转向对齐后再接直线。18cm半径/0.06弯内速度/goal减速/定位/原mission不变。允许出口补转，不承诺所有弯全程不停。备份：/home/rb3302-7/rb3302_fresh/backups/before_stronger_arc_20261105_141351。
+
+2026-11-05: 用户决定先回到原地转弯，默认启动mission恢复。原mission控制不改：58cm地图、TF+PID/Stanley直线、所有停车目标前15cm减速至0.04、中心停车无延长、AMCL相对旋转提前15度停车。弧线mission_arc保留但不默认启动。未声称已解决贴墙。
+
+2026-11-05: 按用户要求，原地转弯版普通转弯点取消接近减速，保持drive_speed=0.10m/s直到原有到点判定停车；仅goal保留15cm渐减到0.04。中心目标、定位、转弯算法和原有纵向投影到点判断不变。语法通过，未实机验证。备份：/home/rb3302-7/rb3302_fresh/backups/before_inplace_goal_only_slowdown_20261105_142658
+
+2026-11-05: 仅新增到点停车诊断，打印目标/路线朝向/触发停车的TF位置/纵横向误差/二维距离/最新AMCL位置和消息年龄；明确两者不是同一采样时刻。不改速度、目标和到点判断。备份：/home/rb3302-7/rb3302_fresh/backups/before_stop_diagnostics_20261105_142943
+
+2026-11-05: 用户确认雷达位于车身中心前方约5cm。修正robot_model中lidar_from_imu_x=-0.052为+0.050；base/IMU前后原点同位，因此有效base→laser前移10.2cm。高度、朝向、地图和运动逻辑不变。旧错误可导致估计base位置向车头方向偏约10.2cm；实际效果待实机重新初始化定位验证。必须上传并重新构建robot_model，不能只传mission。备份：/home/rb3302-7/rb3302_fresh/backups/before_lidar_forward_offset_20261105_144331
+
+2026-11-05: 雷达前后偏移修正后，用户实测X→R反馈“非常正的中心”；日志TF距目标0.001m仅定位内部误差。证据及完整源代码保存：/home/rb3302-7/rb3302_fresh/backups/verified_center_lidar_forward_20261105_145306。暂不再调整直线/定位，完整转弯待验证。
+
+2026-11-05: 用户确认完整X→U→N→X实机效果挺好，日志MISSION COMPLETE。首个GOAL X至完成167.128秒（不含初始化）。TF停车估计距目标U=2.2cm、N=1.7cm、末X=0.4cm；最大中途停车误差M=5.6cm。属于定位内部误差，不等于真实精度。当前源码自X→R成功备份后未修改，沿用该源代码存档。保持定位/控制参数，不作修改。
+完整任务证据：/home/rb3302-7/rb3302_fresh/backups/verified_full_XUNX_20261105_151107
+
+2026-11-05: 障碍功能开发期间用户要求取消原地转弯提前15度停车，turn_early_stop_degrees改0；保留成功版备份。粒子维持1000–3000，不同时改变定位负载。
+
+2026-11-05 障碍重规划版（mission_obstacle）
+- 成功版mission仍为默认，新增入口mission_obstacle；不启用失败的弧线版。
+- 激光按扫描时间戳转换到map；仅检测当前剩余路线1.5m范围内格子。
+- 候选物面接近格子朝向雷达的一侧（距中心29cm，容许8cm）；横向覆盖至少30cm，至少5点且跨越中心两侧；地图墙附近1像素的回波排除。
+- 同一格至少4个新扫描、持续0.5秒才确认；新确认格替换旧格，不累积。
+- 确认后停止前进，回到当前直线段上障碍前最近的可通行格子中心；必要时沿原中心线转身返回，不倒车。从该格重新A*，保留尚未完成的goal顺序。
+- 禁止整个障碍格；无路或goal本身被封锁则停车报明原因，不穿过障碍或假报完成。障碍被移走后的自动清除暂未实现（当前需求为静止整格障碍）。
+- 这是整格障碍重规划，不是通用实时防碰撞；确认期间尚未验证实际发现距离和制动距离。
+- 本地检查：24个位置静态墙排除；52个可通行方向大面识别/小面排除；稳定帧及最新格替换；13824组规划排除障碍格；中途障碍触发后回中心、改路和goal顺序测试通过。均非实机验证。
+- 同次按用户要求turn_early_stop_degrees=0；粒子维持1000–3000。
+启动：RB3302_MISSION=mission_obstacle bash ~/rb3302_fresh/run.sh X N X,U,N,X
+
+2026-11-05: Saved previous source to /home/rb3302-7/rb3302_fresh/backups/before_wall_turn17_20261105_153456. Replaced predicted square-face matching with broad surface search across route cell (30cm width, 12cm depth band, existing fresh-scan 0.5s confirmation/static-wall exclusion/latest-only blocked cell). Original and obstacle missions extend non-goal turn targets 17cm along incoming centreline; goal centres unchanged. No hardware validation yet.
+
+2026-11-05: Obstacle replanning now computes route immediately after confirmation/interruption, chooses next safe centre ahead on current segment before blocked cell, completes centre approach before following cached detour. Falls back to last safe centre if no safe forward centre remains. No 17cm extension on this connection. Previous obstacle_node saved at /home/rb3302-7/rb3302_fresh/backups/before_replan_centre_20261105_154035.
+
+2026-11-05: User cancelled 17cm turn extension. Both original and obstacle missions now target exact grid centres again. Obstacle detection and plan-before-centre detour flow unchanged.
+
+2026-11-05: Obstacle surfaces now require map-axis alignment (fitted slope within 8deg, RMS depth residual <=2.5cm), in addition to broad stable returns. Reject oblique surfaces; no motion/map changes. Local launch still points to refined_58cm; robot runtime map not yet verified.
+
+2026-11-05: Log showed false N block during Q->P. Restrict obstacle detection to nearest forward centre on active straight segment, during straight driving only. Reject scan rays passing through existing map walls; existing wall endpoint exclusion retained. Speeds drive .12, approach .05, turn max .75. No turn extension. Backup /home/rb3302-7/rb3302_fresh/backups/before_adjacent_20261105_161858
+
+2026-11-05: Static wall exclusion enlarged from 1 to 2 pixels (~9.7cm). If detour unavailable, finish safe approach to last centre before blocked cell, then stop and retry A* every second instead of terminating. Does not clear a confirmed obstacle merely because no path exists.
+
+2026-11-05: Detect four cardinal cells adjacent to nearest current grid centre, including while waiting. New confirmed obstacle replaces old only; replan only if new cell blocks remaining route. Passed cells on active segment do not trigger replanning. Speed/map/motion unchanged.
+
+2026-11-05: User requests turn early stop10deg and ordinary turn target +10cm incoming line, goals unchanged. Obstacle near-face only within10cm of neighbour near edge; static map wall rejection retained. Reject candidate if blocking it makes current active goal unreachable under user course assumption; this is not proof scan was false.
+
+2026-11-05: Explicit obstacle_boundary_tolerance=0.05m: only neighbour near-boundary band accepted; off-band returns ignored.
+
+2026-11-05: Boundary tolerance increased to +/-10cm by user request. Four cardinal adjacent cells only; no diagonal or distant cells.
+
+2026-11-05: User reports obstacle handling good. Removed +10cm turn extension; restored early turn stop15deg. Obstacle logic and speeds unchanged. Backup /home/rb3302-7/rb3302_fresh/backups/before_restore_turn15_20261105_170334
+
+2026-11-05: Turn-only frozen-AMCL guard: fresh base_link filtered odom samples (age<=0.3s), integrate unique timestamp yaw rates over1s; measured net rotation>=12deg while unwrapped AMCL range<=3deg stops and aborts mission. Stale/missing odom is not treated as proof of motion. Existing stale-AMCL wait remains. No controller/obstacle tuning.
+
+2026-11-06: User requested removal of new turn guard and its abort. Restored node.py exactly to pre-guard version; archived and removed turn_guard.py. Obstacle logic unchanged. Intermittent localization heading issue remains unresolved.
+
+2026-11-06: Fixed YESENSE stream parser stuck after noisy bad CRC: resynchronize by scanning header and skipping bad bytes, preserve split header, discard leading noise, recover overflow retaining newest data, bounded memmove, payload length checks, unaligned scalar reads via memcpy, signed nonblocking read result, decoder destructor cleanup. Local regression and package build passed. No motion/obstacle/AMCL parameter changes. Robot upload must include robot_ws/src/yesense_std_ros2 and rebuild that package; mission-only upload will not apply fix. Evidence in report_evidence/imu_stream_recovery_20261106.
+
+2026-11-06: User-approved good version preserved at /home/rb3302-7/rb3302_fresh/backups/verified_good_motion_obstacle_20261106_130538. Physical longitudinal offset remains to investigate. No behavior changes.
+
+2026-11-06: User clarified LiDAR centre 1-2cm forward of body centre, trial1.5cm. Changed lidar_from_imu_x .050->.015m only. Backed up xacro at /home/rb3302-7/rb3302_fresh/backups/before_lidar_forward15mm_20261106_131904. Hardware validation pending.
+
+2026-11-06: User reports physical stopping now centred with lidar +1.5cm. Preserved source/log at /home/rb3302-7/rb3302_fresh/backups/verified_center15mm_before_obstacle20cm_20261106_132958. Requested obstacle near-face location tolerance +/-20cm (was10), direction tolerance5deg (was8, thus stricter). Four-neighbour scope/static-wall rejection/stability and motion unchanged.
+
+2026-11-06: User revised obstacle face angle tolerance to10deg; near-boundary tolerance remains20cm. Motion unchanged.
+
+2026-11-06: Removed1.5m obstacle range cap and path-unreachable candidate veto. Detect candidates across map cells within sensor valid range every scan; only current four cardinal neighbours eligible for stable single-cell planner update. Log changing candidate sets. Preserve map-wall rejection, user geometry and stability conditions. Not a general raw-scan emergency collision stop.
+
+2026-11-06: User requested restoring no-route candidate rejection. Minimum observed face width remains0.30m (already30cm); no full58cm face required. Continuous far-cell observation and four-neighbour planning preserved.
+
+2026-11-06: Speed trial requested: drive0.12->0.14m/s, turn cap0.75->0.90rad/s. Goal approach0.05, turn early stop15deg, centre targets, lidar+1.5cm and obstacle logic unchanged. Backup /home/rb3302-7/rb3302_fresh/backups/before_speed_trial_20261106_133621. Hardware validation pending.
+
+2026-11-06: Latest log from firstGOALX1780676765.4175 to final provided timestamp1780676981.0740 spans215.6565s without MISSION COMPLETE. B obstacle caused long detour. Speed trial: turn cap.90->1.05rad/s, turn minimum.25->.30, goal approach.05->.07m/s. Cruise.14, slowdown15cm and early stop15deg unchanged. Backup /home/rb3302-7/rb3302_fresh/backups/before_turn_goal_speed_20261106_134430.
+
+2026-11-06: Requested additional speed increase: cruise.14->.16m/s, turn cap1.05->1.20rad/s. Approach.07 and turn minimum.30 unchanged; early stop15deg and all geometry/obstacle behavior unchanged. Hardware validation pending. Backup /home/rb3302-7/rb3302_fresh/backups/before_speed_016_120_20261106_134641
+
+2026-11-06: User requested1.5x aggressive speed trial; applied to current cruise .16->.24m/s and turn cap1.20->1.80rad/s. Approach .07 and minimum turning .30 retained, explained to user. Early stop15deg unchanged. Not hardware-validated. Backup /home/rb3302-7/rb3302_fresh/backups/before_speed_times15_20261106_134949
+
+2026-11-06: User requested removal of minimum turning speed. Active turn law now min(turn_speed,2*remaining), without minimum floor. Legacy arc parameter set0 for compatibility. Cruise.24, turn cap1.80, early stop15deg unchanged. Potential low-speed stall requires real test.
+
+20261109_223644: preserved baseline at /home/rb3302-7/rb3302_fresh/backups/before_two_turn_versions_20261109_223644; added independent mission_feedback and mission_corner_rpp experiments. Original movement/config/localization/obstacles unchanged. See TWO_TURN_VERSIONS.txt. No robot validation yet.
+User confirmed same robot model: enabled Antonio PC feedforward calibration as initial values for both experimental versions, with PI/overspeed braking. Original baseline untouched.
+User clarified RPP may pivot when appropriate: enabled rotate-to-path above 0.5rad with requested rate 0.6rad/s inside corner windows. Original straight segments and version 1 unchanged.
+
+2026-11-09: User requested independent implementation and parameter design. Replaced Antonio-style compensation with unity-feedforward PI (explicit provisional gains), removed copied calibration dependency. RPP lookahead and curvature-speed bounds now based on 20cm body, actual grid spacing and existing speed settings; >45deg target bearing allows pivot. Methods attributed in TWO_TURN_VERSIONS.txt. Baseline untouched.
+Gazebo first RPP clear run: 94.05s completed but 27 overlap frames, failed. Near-end carrot collapse left poor departure heading. Extended geometric lookahead along final centreline while retaining original stopping plane; retest required.
+
+2026-11-09 Gazebo results (X,N; goals X,P,G,X; obstacle Q 58cm square): feedback clear 151.015s no overlap; feedback obstacle 205.835s no overlap, over 180s. RPP initial clear 94.05s had 27 overlap frames, rejected; after terminal lookahead extension clear retest 95.78s no overlap; obstacle 194.785s no overlap, over 180s. Both obstacle runs misclassified other cells. Original obstacle logic not modified. Full results: /home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_224435/final_report
+
+2026-11-09: User reiterated mapped walls can never be new obstacles. Experiment-only NewSurfaceObstacle filters static-wall-near returns BEFORE width/angle fit; experimental scan uses only statically connected cardinal neighbours and keeps currently confirmed cell eligible. Original obstacle.py/obstacle_node.py and mission_obstacle remain unchanged. Existing Gazebo timing results predate this correction.
+
+2026-11-09: Retested both experiments with strict static-wall filtering, Gazebo 58cm obstacle Q, X/N, goals X,P,G,X. Feedback 91.05s; RPP 67.955s. Both completed all four goals/holds, no geometric overlap frames, only Q confirmed (no false blocked cells). Goal centres under robot footprint; this is not an exact-centre/5cm guarantee. Evidence and tested package snapshot: /home/rb3302-7/rb3302_fresh/report_evidence/two_turns_20261109_232925/final_report
+
+2026-11-10 real run: RPP repeatedly alternates pivot/tracking with under-realized angular rate. Added independent quintic Bezier corner smoothing (zero endpoint curvature, tangent to centre lines, static-clearance checked), retaining grid route separately for obstacle/replan logic. Added rate-limited obstacle diagnostic counts; did NOT relax obstacle thresholds based on incomplete filtered log. Backup /home/rb3302-7/rb3302_fresh/backups/before_smooth_rpp_20261110_134207
+
+2026-11-10: Both experimental controllers now align goal position within 0.02 m using low-speed forward point regulation, restoring arrival yaw within 3 degrees before the existing 3-second hold. No claim of exact physical accuracy. Removed fixed 0.3-second transition waits only in experiments; baseline retains previous defaults. RPP uses smoothed curves and route-progress obstacle anchor from preceding change. User requested no more simulation; no simulation run for these changes. Backup: /home/rb3302-7/rb3302_fresh/backups/before_goal_alignment_20261110_135058
+
+2026-11-10: Both experimental goals use rotate-to-target then low-speed regulated pure pursuit, accepting measured position within 5cm. No restore-arrival-yaw rotation. Next straight departure uses actual yaw after alignment; curve departure uses RPP. Pivot enters at 45deg and leaves at 10deg. No simulation; physical validation pending. Backup /home/rb3302-7/rb3302_fresh/backups/before_goal_rpp_20261110_135242
+
+2026-11-10: Focus on version 2. Replaced quintic curves with tangent quarter circles of nominal 30cm radius, capped to 29cm by 58cm cell size. Removed silent radius halving; static-clearance rejection keeps original corner with explicit warning. Added goal initial error/skip/alignment-complete diagnostics. Obstacle modules and version-1 feedback/goal module unchanged (hash checked). No simulation. Backup: /home/rb3302-7/rb3302_fresh/backups/before_quarter_circle_20261110_143823
+
+2026-11-10: Version 2 goal position acceptance changed to 3cm at user request. Version 1 remains 5cm via class default. No simulation.
+
+2026-11-10: V2 hands off to slow goal RPP upon entering last cell (29cm from centre along straight approach; square boundary for curve). After reaching 3cm, hold and check new AMCL updates for 3s; drift outside tolerance restarts centring/hold. Goal pivot/next departure requested angular cap raised 0.5->0.8rad/s. V1 defaults preserved. Arc and obstacle detection unchanged. No simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_goal_settle_20261110_144636
+
+2026-11-10: V2 now inherits V1 obstacle scanner, route veto and replan_at_centre without path-anchor override. V2 speeds .18m/s travel, .05m/s goal approach. Collision cause not proven by log. Syntax/inheritance checks only, no simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_unify_obstacle_20261110_163314
+
+2026-11-10: User confirms obstacle handling works; preserve it. V2 goal approach max .08m/s, distance-based speed floor .04m/s (curvature regulation can still lower speed), active capture 2cm, stationary recheck threshold remains 3cm. First-version defaults unchanged. Obstacle hashes unchanged. No simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_faster_goal_20261110_172307
+
+2026-11-10: User requests zero nominal goal offset and only one correction. V2 now performs one fixed-line RPP approach toward centre, stops at first nonpositive along-line remaining distance, logs cross-track/2D residual. No 2cm early acceptance or 3cm repeat correction. 3s hold continues localization but does not move again. Exact physical zero is not claimed. Obstacle and arc geometry unchanged. No simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_single_goal_pass_20261110_172425
+
+2026-11-10: V2 normal-speed arrival to goal plane (no goal-cell slowdown), stop 0.3s to sample settled pose, correct once only if 2D error >3cm; correction still targets zero along-line offset. Hold 3s without further corrections. V2 straight Stanley gain .4->.6, yaw cap .5->.65. Arc geometry/obstacle hashes unchanged. AMCL unchanged: min/max 1000/3000,120 beams,update_min_d/a=0,resample_interval=1. No simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_normal_goal_20261110_173936
+
+2026-11-10: V2 goal position correction removed at user request. Normal arrival then 4-second hold with localization callbacks active; residual logged only. Obstacle, arc and straight control unchanged. No simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_goal_hold_only_20261110_174736
+
+2026-11-10: V2 RPP window speed now scales continuously by lookahead/(lookahead+cross-track error)*cos(carrot bearing). Fixed quarter-circle and outgoing centreline retained; no replanning through actual pose. Extra tracking-error/speed-scale logs. Baseline straight controller, obstacle, circle radius29cm, goal arrival and hold4s unchanged. Syntax/algebra checks only, no simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_tracking_speed_20261110_175854
+
+2026-11-11: User clarified smaller radius means more straight travel. V2 quarter-circle radius changed 29->20cm, including outgoing arc-progress mark. Consecutive turns leave 18cm straight; arc exit to adjacent centre is 38cm. Other parameters/obstacle logic untouched. Geometry check only, no simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_radius20_20261111_143705
+
+2026-11-11: User requests V2 RPP lookahead20->5cm. Decoupled tracking-error speed scale, retaining its previous20cm value so this is not also a cross-error slowdown tuning change. Radius20cm, obstacle and goal hold4s unchanged. Syntax checked only, no simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_lookahead5_20261111_145453
+
+2026-11-11: User approved RPP lookahead5->10cm for V2. Only lookahead changed; radius20cm, speed regulation, obstacle handling and goal hold4s retained. Syntax checked, no simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_lookahead10_20261111_150132
+
+2026-11-11: Code review found V2 departures inherited nominal quarter-turn +15deg early-stop and straight motion lacked measured-rate trim. Refactored common absolute-heading helper; V2 always uses it for face_route, and enables existing measured-rate trim throughout drive_line. V1 routing behavior unchanged. Goal plane stop/hold4s, AMCL, obstacle, arc geometry unchanged. Syntax and actual-method dispatch/lifetime checks only; no simulation. Full physical error cause not claimed resolved. Backup /home/rb3302-7/rb3302_fresh/backups/before_v2_heading_fix_20261111_151452
+
+2026-11-11: Full active-chain review completed; see CODE_REVIEW_20261111.txt. Fixed continuous-transition extra alignment, shared PI actuator saturation mismatch, and zero-length clearance division. Tested logical properties without simulation. Goal2D-centre accuracy and physical localization/drive accuracy remain unproven; not declared fully fixed.
+
+2026-11-11: V2 final straight switches without stop to existing RPP at goal-cell boundary (midpoint of final grid edge). Already-RPP arrivals remain RPP. Same fixed centreline, 10cm lookahead, endpoint-plane stop and 4s hold; no extra correction. Obstacle/localization/turn geometry unchanged. AST checked; no simulation. Backup /home/rb3302-7/rb3302_fresh/backups/before_goal_cell_rpp_20261111_160148
+
+2026-11-11: Restored V2 quarter-circle radius to 29cm (half of 58cm cell), including outgoing tangent progress mark. Goal-cell RPP retained; lookahead, speed, obstacle and localization unchanged. Syntax checked; no simulator/robot run. Backup /home/rb3302-7/rb3302_fresh/backups/before_restore_radius29_20261111_162148
+
+2026-11-11: User reports robot-side particle cloud 1.3-1.5Hz with 5.337s max gap; root cause not proven. Reduce AMCL work from 1000-3000 particles/120 beams to 500-2000/60. Keep update_min_d/a=0 and resample_interval=1. Request no-motion updates per scan only while last command is zero, retaining stationary goal updates without redundant moving service calls. Shared localization affects both versions. No motion/obstacle changes. Syntax checked, no hardware performance claim. Backup /home/rb3302-7/rb3302_fresh/backups/before_amcl_latency_20261111_163216
+
+2026-11-11: Restored AMCL parameter block verbatim from earliest located configuration backup code_review_20261026_140026: upstream DifferentialMotionModel, alpha1-5=.2, update_min_d/a=.05, transform_tolerance=1; particle/beam/resampling use installed AMCL defaults. EKF, lidar calibration, motion and obstacles retained. Stationary no-motion requests retained. Custom model source left archived/inactive, not deleted. No hardware validation. Backup /home/rb3302-7/rb3302_fresh/backups/before_original_amcl_20261111_163249
+
+2026-11-11: User reports enlarged turn worse; restore pre-radius29 V2 corner geometry to 20cm radius and matching outgoing progress mark. Lookahead10cm, goal-cell RPP, restored original AMCL and obstacles unchanged. AST checked; no hardware run. Backup /home/rb3302-7/rb3302_fresh/backups/before_return_radius20_20261111_163312
+
+2026-11-11: Restore V2 straight correction gains to pre-strengthening values: stanley_cross_gain .6->.4, drive_turn_limit .65->.50 rad/s. Heading PID and measured rate feedback retained. Speed, RPP, AMCL and obstacle handling unchanged. AST checked; no hardware run. Backup /home/rb3302-7/rb3302_fresh/backups/before_restore_straight_gains_20261111_163332
+
+2026-11-11: Clarified user means initial quarter-circle RPP from before_goal_settle_20261110_144636, not later radius20. Restore nominal30cm capped half-edge (29cm on58cm grid), lookahead min20cm/half-edge and original curvature-only speed regulation; remove later cross-error/heading speed multiplier. Retain current goal-cell routing/4s hold, obstacle fixes, straight gains and AMCL rollback. Syntax checked, no physical validation. Backup /home/rb3302-7/rb3302_fresh/backups/before_original_quarter_rpp_20261111_163425
+
+2026-11-11: User requested Antonio/merged AMCL settings. Copied complete AMCL parameter mapping from RB3302-antonio planning_rpp/config/nav2_params.yaml, verified identical to merged: official DifferentialMotionModel; alphas .2/.2/.6/.3/.2; likelihood_field, sigma_hit=.08, z_hit=.9,z_rand=.1; 120 beams;1500-2500 particles;update_min_d=.05,update_min_a=.1;use_sim_time=false,scan_topic=scan. EKF/motion/obstacles unchanged. Retain existing stationary update requests. YAML equality verified; no hardware performance claim. Backup /home/rb3302-7/rb3302_fresh/backups/before_antonio_amcl_20261111_163538
+
+2026-11-11: User confirmed physical run successful. Frozen read-only full source/maps/scripts snapshot /home/rb3302-7/rb3302_fresh/backups/SUCCESS_RPP_20261111_165943 with submitted log, SHA256 manifest and read-only tar.gz/checksum. Robot installed-file hashes not independently verified. Active working files unchanged.
+
+2026-11-11: Working V2 only: stationary startup minimum3s plus5 fresh AMCL samples with largest XY std<=.05m and yaw std<=5deg; invalid/stale localization resets count; no timeout departure or task exit. Existing stationary scan requests continue. Scale v,w by1.5 in CornerMission.command BEFORE measured-rate feedback, preserving nominal curvature and all original controllers; straight .18->.27m/s, heading cap .8->1.2 requested, RPP pivot nominal1.8->2.7 subject to unchanged driver2rad/s cap. Goal hold4s, obstacle rules, AMCL settings unchanged. Covariance concentration does not prove absolute accuracy. Successful frozen snapshot untouched. AST checked; no simulator or hardware run. Backup /home/rb3302-7/rb3302_fresh/backups/before_start_settle_speed15_20261111_170847
+
+2026-11-11: User requested original speed in RPP turns and goal cell, keep1.5 elsewhere. V2 command multiplier now scoped:1.0 throughout follow_corner/follow_rpp,1.5 elsewhere. Restored in finally including obstacle-replan exceptions. Nominal straight .27m/s; RPP .18m/s before curvature regulation. Initial convergence,4s goal hold, geometry,AMCL,obstacles unchanged. Frozen success snapshot untouched. AST checked. Backup /home/rb3302-7/rb3302_fresh/backups/before_rpp_original_speed_20261111_172320
+
+2026-11-11: User requests2x instead of1.5x outside RPP. motion_speed_scale default2.0; straight nominal .36m/s; RPP context remains1.0 (.18m/s nominal), including goal cells. Both v,w scaled as before; actuator angular cap unchanged. Startup convergence and frozen success snapshot unchanged. Syntax checked; hardware trial pending. Backup /home/rb3302-7/rb3302_fresh/backups/before_straight_speed2_20261111_172735
+
+2026-11-11: Restore ALL original successful-version speeds; delete speed multiplier override and redundant RPP speed-scope wrapper. Retain startup AMCL convergence gate. Straight and RPP nominal .18m/s, original angular requests/limits restored. No changes to frozen success snapshot. Syntax checked. Backup /home/rb3302-7/rb3302_fresh/backups/before_restore_all_original_speed_20261111_173605
+
+2026-11-11: User designates original speeds + startup convergence as new frozen successful version. Created /home/rb3302-7/rb3302_fresh/backups/SUCCESS_RPP_20261111_173648 and verified archive against SHA256 for every file. Updated SUCCESSFUL_VERSION.txt; deleted previous designated SUCCESS_RPP_20261111_165943 directory/archive/checksum as requested. Existing separate (2) copy was not created by this task and left untouched.

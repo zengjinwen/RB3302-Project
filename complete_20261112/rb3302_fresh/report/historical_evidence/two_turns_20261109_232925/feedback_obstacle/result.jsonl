@@ -1,0 +1,12 @@
+{"event": "MISSION START", "time": 0.0}
+{"event": "TARGET X", "time": 1.29}
+{"event": "GOAL X", "time": 1.29}
+{"event": "TARGET P", "time": 4.305}
+{"event": "\u786e\u8ba4\u6574\u683c\u969c\u788d\uff1aQ\uff0c\u66ff\u6362\u65e7\u969c\u788dNone\uff1b\u6321\u4f4f\u5269\u4f59\u8def\u7ebf\uff0c\u51c6\u5907\u91cd\u65b0\u89c4\u5212\u3002", "time": 6.435}
+{"event": "TARGET P", "time": 7.295}
+{"event": "GOAL P", "time": 34.695}
+{"event": "TARGET G", "time": 37.705}
+{"event": "GOAL G", "time": 64.755}
+{"event": "TARGET X", "time": 67.765}
+{"event": "GOAL X", "time": 88.05}
+{"event": "MISSION COMPLETE", "time": 91.05}

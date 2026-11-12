@@ -1,0 +1,42 @@
+[
+  {
+    "passed": true,
+    "completed": true,
+    "elapsed_sim_seconds": 151.01500000000001,
+    "collision_frames": 0,
+    "amcl_position_rmse": 0.03396797750772232,
+    "obstacle_seen_in_costmap": false,
+    "case": "feedback_clear",
+    "wall_seconds": 158.37
+  },
+  {
+    "passed": false,
+    "completed": true,
+    "elapsed_sim_seconds": 94.05,
+    "collision_frames": 27,
+    "amcl_position_rmse": 0.03584990314554363,
+    "obstacle_seen_in_costmap": false,
+    "case": "rpp_clear",
+    "wall_seconds": 102.4
+  },
+  {
+    "passed": false,
+    "completed": true,
+    "elapsed_sim_seconds": 205.835,
+    "collision_frames": 0,
+    "amcl_position_rmse": 0.034785013618863644,
+    "obstacle_seen_in_costmap": true,
+    "case": "feedback_obstacle",
+    "wall_seconds": 214.5
+  },
+  {
+    "passed": false,
+    "completed": true,
+    "elapsed_sim_seconds": 194.785,
+    "collision_frames": 0,
+    "amcl_position_rmse": 0.03908512935481647,
+    "obstacle_seen_in_costmap": true,
+    "case": "rpp_obstacle",
+    "wall_seconds": 204.39
+  }
+]

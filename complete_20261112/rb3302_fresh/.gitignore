@@ -1,0 +1,26 @@
+# Generated ROS files
+build/
+install/
+log/
+logs/
+__pycache__/
+*.pyc
+
+# Backups and packaged copies
+backups/
+*.tar
+*.tar.gz
+*.zip
+
+# Local runtime files
+.run.lock
+*.log
+.vscode/
+
+# Credentials
+.env
+.env.*
+!.env.example
+
+# Temporary simulation locks
+.domain_*.lock

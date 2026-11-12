@@ -1,0 +1,329 @@
+{
+  "completed": true,
+  "elapsed_sim_seconds": 151.01500000000001,
+  "goals": [
+    {
+      "event": "GOAL X",
+      "time": 1.495,
+      "truth": [
+        1.505,
+        3.1900180375595713,
+        0.29,
+        1.570796326794908,
+        -3.65282958503417e-20,
+        -3.094813602443137e-06,
+        0.0
+      ],
+      "true_goal_error": 1.8037559571304485e-05,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL P",
+      "time": 15.42,
+      "truth": [
+        15.435,
+        2.0402537517348573,
+        0.9365324645394079,
+        -3.117285929380802,
+        3.771053815079791e-05,
+        -1.0791353262711994e-09,
+        3.145109183629973e-12
+      ],
+      "true_goal_error": 0.06731796389024002,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL G",
+      "time": 90.26,
+      "truth": [
+        90.265,
+        0.2882036691838464,
+        1.4353237870450155,
+        -1.5218732208258279,
+        2.2233529926439016e-05,
+        -1.2648587727252278e-09,
+        1.9561820087815277e-12
+      ],
+      "true_goal_error": 0.014785737421620754,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL X",
+      "time": 149.41,
+      "truth": [
+        149.415,
+        3.2079173792375126,
+        0.32476413935378456,
+        -0.009657558824361954,
+        3.937524216927962e-05,
+        -3.6337883235799828e-12,
+        1.0997893741492772e-14
+      ],
+      "true_goal_error": 0.0391098179968944,
+      "centre_under_body": true
+    }
+  ],
+  "events": [
+    {
+      "event": "MISSION START",
+      "time": 1.44,
+      "truth": [
+        1.435,
+        3.190017882851347,
+        0.29,
+        1.5707963267949088,
+        -3.8381180422460484e-20,
+        -3.2389124268626137e-06,
+        0.0
+      ]
+    },
+    {
+      "event": "TARGET X",
+      "time": 1.495,
+      "truth": [
+        1.505,
+        3.1900180375595713,
+        0.29,
+        1.570796326794908,
+        -3.65282958503417e-20,
+        -3.094813602443137e-06,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 1.495,
+      "truth": [
+        1.505,
+        3.1900180375595713,
+        0.29,
+        1.570796326794908,
+        -3.65282958503417e-20,
+        -3.094813602443137e-06,
+        0.0
+      ],
+      "true_goal_error": 1.8037559571304485e-05,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET P",
+      "time": 4.51,
+      "truth": [
+        4.515,
+        3.190019089969966,
+        0.29,
+        1.5707963267949223,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL P",
+      "time": 15.42,
+      "truth": [
+        15.435,
+        2.0402537517348573,
+        0.9365324645394079,
+        -3.117285929380802,
+        3.771053815079791e-05,
+        -1.0791353262711994e-09,
+        3.145109183629973e-12
+      ],
+      "true_goal_error": 0.06731796389024002,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET G",
+      "time": 18.5,
+      "truth": [
+        18.515,
+        2.0402360934605333,
+        0.9365320357456681,
+        -3.117285929380898,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL G",
+      "time": 90.26,
+      "truth": [
+        90.265,
+        0.2882036691838464,
+        1.4353237870450155,
+        -1.5218732208258279,
+        2.2233529926439016e-05,
+        -1.2648587727252278e-09,
+        1.9561820087815277e-12
+      ],
+      "true_goal_error": 0.014785737421620754,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET X",
+      "time": 93.39,
+      "truth": [
+        93.38,
+        0.28820412968237646,
+        1.4353143708887486,
+        -1.521873220825886,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 149.41,
+      "truth": [
+        149.415,
+        3.2079173792375126,
+        0.32476413935378456,
+        -0.009657558824361954,
+        3.937524216927962e-05,
+        -3.6337883235799828e-12,
+        1.0997893741492772e-14
+      ],
+      "true_goal_error": 0.0391098179968944,
+      "centre_under_body": true
+    },
+    {
+      "event": "MISSION COMPLETE",
+      "time": 152.455,
+      "truth": [
+        152.425,
+        3.207935937163045,
+        0.3247639601222418,
+        -0.009657558824362455,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "holds": [
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 1.0524103948306163e-06
+    },
+    {
+      "goal": "P",
+      "duration": 3.0,
+      "max_translation": 1.7663479730116282e-05
+    },
+    {
+      "goal": "G",
+      "duration": 3.0,
+      "max_translation": 9.427409916802269e-06
+    },
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 1.8558791016874544e-05
+    }
+  ],
+  "collision_frames": 0,
+  "obstacle_seen_in_costmap": false,
+  "plans": 0,
+  "amcl_position_rmse": 0.03396797750772232,
+  "amcl_yaw_rmse_deg": 1.452255686044871,
+  "topic_audit": {
+    "/sim/ground_truth": {
+      "publishers": [
+        "ros_gz_bridge"
+      ],
+      "subscribers": [
+        "autonomous_evidence"
+      ]
+    },
+    "/scan": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "amcl",
+        "rb3302_mission"
+      ]
+    },
+    "/odom/raw": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "ekf_filter_node"
+      ]
+    },
+    "/odom": {
+      "publishers": [
+        "ekf_filter_node"
+      ],
+      "subscribers": [
+        "rb3302_mission"
+      ]
+    },
+    "/amcl_pose": {
+      "publishers": [
+        "amcl"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "rb3302_mission"
+      ]
+    },
+    "/cmd_vel": {
+      "publishers": [
+        "rb3302_mission"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "sim_hardware"
+      ]
+    },
+    "/cmd_vel_nav": {
+      "publishers": [],
+      "subscribers": []
+    }
+  },
+  "passed": true,
+  "turns": [
+    {
+      "start": 7.4,
+      "requested_degrees": 90.0,
+      "end": 9.59,
+      "true_degrees": 82.49342850120169,
+      "error_degrees": -7.5065714987983085
+    },
+    {
+      "start": 21.295,
+      "requested_degrees": -90.0,
+      "end": 23.48,
+      "true_degrees": -83.03861955060431,
+      "error_degrees": 6.961380449395691
+    },
+    {
+      "start": 34.02,
+      "requested_degrees": 90.0,
+      "end": 36.145,
+      "true_degrees": 80.15497461308394,
+      "error_degrees": -9.845025386916065
+    },
+    {
+      "start": 41.685,
+      "requested_degrees": 90.0,
+      "end": 43.84,
+      "true_degrees": 80.42653639521872,
+      "error_degrees": -9.573463604781281
+    },
+    {
+      "start": 134.18,
+      "requested_degrees": 90.0,
+      "end": 136.38,
+      "true_degrees": 81.1764215976453,
+      "error_degrees": -8.823578402354698
+    }
+  ]
+}

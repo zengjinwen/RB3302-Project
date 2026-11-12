@@ -1,0 +1,60 @@
+RB3302 independent implementation — development record
+2026-11-03
+
+Scope
+The user requested a fresh design with no inherited algorithm preference,
+followed by actual Gazebo tests and corrections until successful. Work is
+isolated in autonomous/. Earlier clean/ and student mission implementations
+were preserved. No physical robot was accessed or commanded.
+
+Design
+Use stock Nav2 AMCL with EKF odometry, NavFn A*, regulated pure pursuit,
+velocity smoothing, live costmaps, and a small ordered-goal mission node.
+Use the same navigation nodes in simulation and on hardware. Only the
+sensor and actuator interface changes. Ground truth is evaluator-only.
+
+Experiments and reasons for changes
+1. A baseline completed in simulation, but goal accuracy and obstacle cases
+   required independent truth checks rather than trusting action success.
+2. Raw scans produced duplicate wall obstacles when localization differed
+   slightly from the map. Added known-wall separation only for marking new
+   obstacles. Raw scans still drive AMCL and clearing; static walls remain.
+   Limitation: new objects very close to known walls can be filtered out.
+3. A large circular local footprint prevented valid offset starts. Local
+   collision checking now uses the actual 20 cm square plus 1 cm padding;
+   global planning uses an enclosing 15 cm circle plus 1 cm padding.
+4. A 2.5 cm resampled map reduces costmap quantization without claiming new
+   measured detail. The occupied physical geometry remains unchanged.
+5. Offset starting poses exposed poor initialization. Added a bounded scan
+   match within the known cell and +/-45 degree supplied bearing. Three
+   scans initialize stock AMCL; no simulator pose is used.
+6. Tight laser likelihood parameters and a beam-skip experiment worsened
+   actual goal accuracy with a large obstacle. Reverted to the broader
+   likelihood-field model. Failed results remain under evidence/.
+7. Added a real-ROS gate test: fresh messages allow motion, expired AMCL
+   stops output, restored messages resume. All three outcomes passed.
+8. Concurrent suite 20261103_022817 passed four cases, but baseline failed
+   with 17 geometric overlap samples; the sixth case was interrupted.
+   Investigation showed a 4.7-second AMCL gap near the target, ROS zero
+   commands, and continued simulated motion. Wall-time timestamps also
+   jumped substantially. Exact cause of the transport stall is unresolved.
+   It was not established to be a corner-planning defect. No planner rewrite
+   was made on that assumption. Single-simulator baseline 20261103_142822
+   then passed unchanged navigation settings in 61.1 simulated seconds.
+9. Reduced final command and Gazebo bridge queues to one; sensor bridges
+   use sensor-data QoS. This reduces stale backlog, not a guarantee against
+   process suspension. Acceptance tests now run sequentially by default.
+
+Evaluation
+Each run records truth trajectory, commands, plans, AMCL estimates, goal
+scans and events. Acceptance checks ordered goals, <=180 seconds, stationary
+3-second dwell, centre coverage and zero sampled body/wall/object overlap.
+Collision checking uses the rotated 20 cm body against world collision boxes.
+Official label and obstacle dimensions were not supplied; tested obstacles
+are 30/40 cm squares and full printed-label coverage is not asserted.
+
+Final results
+See evidence/RESULTS.txt and the named run directory there. An earlier pass
+is not substituted for a later failure. Test logs are retained for reporting.
+Simulation is not a calibrated representation of wheel slip, firmware
+latency or battery behavior. Real-robot testing remains necessary.

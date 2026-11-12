@@ -1,0 +1,7 @@
+{
+  "name": "01_baseline",
+  "start": "X",
+  "bearing": "N",
+  "goals": "X,O,Q,X",
+  "env": {}
+}

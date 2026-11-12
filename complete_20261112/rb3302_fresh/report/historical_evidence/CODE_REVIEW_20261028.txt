@@ -1,0 +1,71 @@
+RB3302 code review — 2026-10-28
+Status: REVIEW ONLY. No robot runtime source/config changed in this review.
+Scope: active launch chain, WAVE ROVER Python driver, mission/node/robot/grid code, custom AMCL motion model, EKF parameters, relevant IMU publication and lidar scan/TF code, URDF, map metadata, packaging and RViz/scripts. Did not audit every third-party serial/lidar SDK implementation or unavailable ESP32 firmware. Local code is not proof of what is installed/running on robot. Read-only SSH connection timed out.
+
+CONFIRMED FINDINGS
+
+[P1] Custom AMCL translation noise has a positive magnitude bias and discontinuity near pure rotation.
+File: student_ws/src/rb3302_amcl_motion/differential_motion_model.cpp lines 58-69.
+translation_sigma=sqrt(alpha3*distance^2+alpha4*turn^2). Magnitude is clipped at zero before scaling signed displacement. For any tiny nonzero distance plus appreciable turn, noise magnitude depends mainly on turn and clipping creates nonzero mean travel. Exactly zero distance takes another branch and creates no translation.
+Actual compiled-model reproduction, 100000 particles, alpha=.2, turn=.05 rad: dx=+1e-6 m -> mean particle dx=+0.00896888 m; dx=-1e-6 -> -0.00896888 m; dx=0 -> exactly zero. This can create centimetre-scale particle drift near an in-place turn, even with nearly zero actual odom translation. It does NOT prove an unconditional forward branch in the latest plugin; sign follows input/particle frame.
+Introduced by the latest signed-motion rewrite. Previous straight/reverse and exact pure-turn tests did not cover nearly-pure rotation. Must revise noise treatment (for example signed-vector deterministic displacement with properly centred covariance) without restoring the 1cm forward-default bug. No fix applied in this review.
+
+[P1] Raw odometry reuses a feedback sample as fresh measurements with zero velocity.
+File: robot_ws/src/waverover_base/waverover_base/waverover_driver.py lines 392-416, 423-445.
+A 100Hz publication timer differentiates the latest stored distance against the previous publication. There is no feedback sequence/new-sample check. If no new packet arrives before a tick, it publishes zero velocity with a NEW timestamp until the 1s watchdog expires. If several packets arrive together, it divides accumulated distance by one timer interval. Thus callback timing can create zero/spike speed measurements unrelated to actual velocity.
+Actual-method reproduction: one 1mm feedback reused over 3 ticks -> vx=[0.1,0,0] m/s. This is not proof that the real robot had exactly this timing; it proves a reachable erroneous measurement behavior. Compute velocity per fresh measurement over its corresponding time interval and do not repeatedly claim stale samples are new measurements.
+
+[P1] Raw odometry measurement uncertainty is all zero.
+Same file lines 452-462. Odometry covariance arrays never assigned; twist vx variance remains zero. EKF fuses this vx as its forward speed measurement. robot_localization's correction code clamps very small variances to 1e-9, effectively extremely high measurement confidence. This amplifies the impact of timing spikes, wrong signs or wheel slip. Need explicit justified uncertainty, not zero. No measured calibration available.
+Reference: https://github.com/cra-ros-pkg/robot_localization/blob/ros2/src/ekf.cpp (very-small covariance branch). The browsed ros2 source is reference behavior, not a binary-level verification of the robot's installed version.
+
+[P1] Straight controller does not have a consistent convergence behavior for all admitted offsets.
+File: student_ws/src/rb3302_mission/rb3302_mission/node.py lines 170-185.
+Longitudinal speed sign is selected from raw AMCL position; steering/target bearing uses separately corrected and propagated pose(). Those estimates can disagree about whether the endpoint is ahead or behind. The controller flips heading error to the nearest axis independently of the already-fixed velocity sign. During a disagreement, reversing can steer away from the centreline instead of toward it.
+Geometric example: target (.6,0), raw AMCL x=.65 (commands reverse), fused pose (.5,.10,0) (bearing points forward-right). Controller requests reverse with negative angular rate; backward motion initially increases +y lateral error.
+Independent ideal unicycle execution of actual drive_line: start (0,.4,0), route (0,0)->(.6,0), exact odom=AMCL, no obstacles, current parameters -> did not arrive by 90s; x~.600, y~1.791. Smaller tested offsets .10 and .25 m converged in both forward and backward body orientations. The .4m case is a counterexample, not claimed typical real-run condition.
+Arrival requires 2D distance, but speed sign uses only longitudinal projection. At the endpoint's perpendicular line, a large lateral error can generate alternating forward/reverse commands and divergent correction. Needs consistent geometric control; not more arbitrary waypoint skips.
+
+[P2] Raw yaw units guessed from magnitude.
+Driver lines 418-421. Values <=2*pi treated as radians, larger values converted from degrees. A fixed-unit sensor cannot safely use this rule. If feedback is in degrees, 5deg becomes 5rad and 7deg becomes .122rad; continuous rotation becomes discontinuous. If feedback is unwrapped radians, crossing 2*pi also breaks conversion.
+Actual function reproduction on inputs 5,6,7 -> [5,6,.122173]. Confirm firmware units and convert explicitly. Important limitation: CURRENT EKF fuses only raw vx, not raw odom yaw/pose, so this defect alone does not establish the cause of the current filtered odom/particle direction.
+
+[P2] Commanded angular velocity is advertised as measured angular velocity.
+Driver line 461 sets odom.twist.angular.z=current_angular (command). Wheel stall/slip or direct wheel mapping means this is not measured rotation. CURRENT EKF does not fuse this field, so it is not the active source of filtered turning velocity; it is still misleading to other consumers or diagnostics.
+
+[P2] Readiness and launch failure handling cannot distinguish another active stack.
+Mission initialization checks message freshness and cmd_vel publishers, but excludes all publishers with its own node name, so two identically named mission nodes evade that check. Fresh odom/scan/AMCL from another process/domain peer can satisfy startup. all.launch does not shut down the stack on an independent driver/lidar failure; only mission exit triggers global shutdown. Older logs show new lidar failed while mission already had fresh input, consistent with another publisher, not conclusive proof of its identity.
+
+[P2] Lidar shutdown wrapper has incomplete child lifecycle handling.
+robot_ws/src/rplidar_ros/launch/rplidar_launch.py traps EXIT, INT, TERM with the same service restart handler, no explicit terminate/wait handling for ros2 run child. Cleanup may run more than once; previous logs show repeated restart and forced termination. This is distinct from reverse-direction motion and should not be claimed fixed.
+
+[P2] Robot geometry in URDF is still 0.30 x 0.25m, not requested 0.20 x 0.20m.
+robot_ws/src/robot_model/urdf/diffbot.urdf.xacro chassis dimensions. Current planner does not use this URDF collision footprint (uses 0.22m inflation), so mismatch affects model/display and future simulation more directly than current A*. Do not attribute reverse particles to this.
+
+[P2] Freshness timestamps do not prove fresh physical measurements throughout the chain.
+Driver timestamps are publication time and can repeat old feedback. EKF can keep predicting/publishing after input stops. Mission checks filtered odom timestamp, not raw feedback age. Therefore 'filtered odom fresh' is not equivalent to 'base measurement fresh'. Driver watchdog still stops commands after feedback timeout, reducing but not eliminating consistency issues.
+
+DISPLAY / DOCUMENTATION FINDINGS
+Default student_ws/src/rb3302_mission/rviz/navigation.rviz has Grid, RobotModel, TF, LaserScan (/scan), Map. It has NO ParticleCloud/particle_cloud display. If user has not manually added particle display, visible dots are not confirmed AMCL particles. User may have manually added a display, so this is a question of observation provenance, not proof the user is mistaken. Fixed Frame in saved file is map.
+README still describes AMCL-only arrival rather than the latest odom-latched AND AMCL arrival. Plugin XML description still says 'below 1cm' although latest implementation applies signed displacement to every step. These descriptions are stale.
+URDF laser_yaw comment says no additional half-turn, but value and launch default are pi. The launch explicitly describes rear-facing scan-zero, so actual sensor mounting must decide correctness; do not flip TF based on this comment alone. It can affect forward and reverse observations, not intrinsically only reverse.
+
+IMPORTANT UNRESOLVED REVERSE INPUT QUESTION
+Driver copies dist_centre, dist_L/R, encA/B from T1001 feedback. Only dist_centre difference is used for current vx. There is no abs() or max(0,vx) in that arithmetic: a decreasing dist_centre produces negative raw vx. Negative cmd_vel is passed through to T13 X without rectification. Thus 'all backward motion necessarily turned into forward in this Python driver' is NOT established by code.
+Whether ESP32 dist_centre is signed displacement or monotonically increasing travelled distance is unverified. Its actual firmware/protocol definition is absent from the active workspace and no reverse feedback capture was supplied. If it increases during reverse, this pipeline will publish positive vx and EKF will integrate forward; this is a conditional explanation, not a confirmed hardware observation. Do not replace measured sign with command sign without evidence.
+Need capture the SAME reverse interval: T1001 raw fields; /odom/raw twist and timestamps; filtered /odom pose; scan-time odom->base_link TF; loaded AMCL model class; actual /particle_cloud pose changes. Current console logs show localization frequency but not these quantities. User statement '往前' remained ambiguous between odom and particle; do not record it as confirmed signed feedback.
+
+CHECKED WITHOUT A NEW DEFECT FOUND
+A* uses the 24-letter 60cm cardinal graph; heuristic and parent reconstruction are consistent. Compression retains turns and designated targets. Map origin yaw is zero, matching planner's current axis-aligned assumption. Map uses the refined aligned filename.
+map/odom anchor conversion and yaw quaternion formula are consistent for planar transforms. Current local launch disables driver odom TF; EKF owns odom->base_link; AMCL owns map->odom. No duplicate authority inside THIS launch configuration (external processes still possible).
+Custom AMCL plugin naming, export XML, CMake installation and localization selection match locally. This does not prove remote deployment.
+IMU publication normalizes quaternion and converts gyro degrees/s to radians/s, with nonzero covariance. Physical mounting convention still needs hardware confirmation.
+70/30 speed sum and permanent odom completion latch implement the user's explicit requirement. They assume odom sign and scale are trustworthy; an incorrect odom input can keep the 70% contribution alive indefinitely. Nominal centre-to-centre odom length ignores initial within-tolerance displacement; can cause avoidable reverse recovery but was not changed during review.
+
+REPRODUCTION ARTIFACTS
+report_evidence/rb3302_audit_driver.py — actual AST extracted driver methods; repeated sample and yaw-unit tests.
+report_evidence/rb3302_audit_control.py — actual drive_line in ideal unicycle simulation; convergence cases and mixed-position example.
+report_evidence/rb3302_audit_particle.cpp — links actual original/custom AMCL libraries; near-pure-turn noise test.
+These checks do not substitute for a real scan/map/firmware integration test. Runtime code remains unchanged pending fixes, so this review must not be described as 'all issues resolved'.
+
+FOLLOW-UP: Confirmed code defects addressed in review_fixes_20261028_140048 development pass. See DEVELOPMENT_HISTORY.txt latest entry for implemented changes and exact remaining hardware assumptions. The review findings above describe the pre-fix version. New raw feedback diagnostics are intended to settle signed-distance behavior on the next real run.

@@ -1,0 +1,22 @@
+[
+  {
+    "passed": true,
+    "completed": true,
+    "elapsed_sim_seconds": 91.05,
+    "collision_frames": 0,
+    "amcl_position_rmse": 0.04144814796080497,
+    "obstacle_seen_in_costmap": true,
+    "case": "feedback_obstacle",
+    "wall_seconds": 98.39
+  },
+  {
+    "passed": true,
+    "completed": true,
+    "elapsed_sim_seconds": 67.955,
+    "collision_frames": 0,
+    "amcl_position_rmse": 0.04139951944623663,
+    "obstacle_seen_in_costmap": true,
+    "case": "rpp_obstacle",
+    "wall_seconds": 76.36
+  }
+]

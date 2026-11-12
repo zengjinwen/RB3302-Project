@@ -1,0 +1,293 @@
+{
+  "completed": true,
+  "elapsed_sim_seconds": 94.05,
+  "goals": [
+    {
+      "event": "GOAL X",
+      "time": 1.385,
+      "truth": [
+        1.4,
+        3.190017720944327,
+        0.29,
+        1.5707963267949068,
+        -1.495542547495874e-20,
+        -1.4692001932811146e-06,
+        0.0
+      ],
+      "true_goal_error": 1.772094432705984e-05,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL P",
+      "time": 13.72,
+      "truth": [
+        13.72,
+        2.042166320854767,
+        0.7862537105817443,
+        3.0426135118167164,
+        0.07495203587946274,
+        0.006659372392418902,
+        -0.10257226456671753
+      ],
+      "true_goal_error": 0.08462541198994182,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL G",
+      "time": 32.385,
+      "truth": [
+        32.375,
+        0.26883553245040387,
+        1.4705033509880272,
+        -0.6262869675238778,
+        0.036282562652250674,
+        -0.07902942286576094,
+        1.6200359327289426
+      ],
+      "true_goal_error": 0.02946730541458015,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL X",
+      "time": 92.38,
+      "truth": [
+        92.365,
+        3.2258420249989763,
+        0.3143165745709987,
+        0.009879833405824597,
+        0.07566686181255486,
+        -7.660469794221817e-05,
+        0.0015623340525839154
+      ],
+      "true_goal_error": 0.04331219868459912,
+      "centre_under_body": true
+    }
+  ],
+  "events": [
+    {
+      "event": "MISSION START",
+      "time": 1.33,
+      "truth": [
+        1.33,
+        3.190017570277763,
+        0.29,
+        1.5707963267949063,
+        -3.202843331805323e-20,
+        -3.3329084085534453e-06,
+        0.0
+      ]
+    },
+    {
+      "event": "TARGET X",
+      "time": 1.385,
+      "truth": [
+        1.4,
+        3.190017720944327,
+        0.29,
+        1.5707963267949068,
+        -1.495542547495874e-20,
+        -1.4692001932811146e-06,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 1.385,
+      "truth": [
+        1.4,
+        3.190017720944327,
+        0.29,
+        1.5707963267949068,
+        -1.495542547495874e-20,
+        -1.4692001932811146e-06,
+        0.0
+      ],
+      "true_goal_error": 1.772094432705984e-05,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET P",
+      "time": 4.38,
+      "truth": [
+        4.375,
+        3.190019089969966,
+        0.29,
+        1.5707963267949223,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL P",
+      "time": 13.72,
+      "truth": [
+        13.72,
+        2.042166320854767,
+        0.7862537105817443,
+        3.0426135118167164,
+        0.07495203587946274,
+        0.006659372392418902,
+        -0.10257226456671753
+      ],
+      "true_goal_error": 0.08462541198994182,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET G",
+      "time": 16.715,
+      "truth": [
+        16.73,
+        2.042026997610227,
+        0.7862197653888046,
+        3.0418817354888055,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL G",
+      "time": 32.385,
+      "truth": [
+        32.375,
+        0.26883553245040387,
+        1.4705033509880272,
+        -0.6262869675238778,
+        0.036282562652250674,
+        -0.07902942286576094,
+        1.6200359327289426
+      ],
+      "true_goal_error": 0.02946730541458015,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET X",
+      "time": 35.42,
+      "truth": [
+        35.42,
+        0.26712858351382296,
+        1.466335838500193,
+        -0.5941811109483349,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 92.38,
+      "truth": [
+        92.365,
+        3.2258420249989763,
+        0.3143165745709987,
+        0.009879833405824597,
+        0.07566686181255486,
+        -7.660469794221817e-05,
+        0.0015623340525839154
+      ],
+      "true_goal_error": 0.04331219868459912,
+      "centre_under_body": true
+    },
+    {
+      "event": "MISSION COMPLETE",
+      "time": 95.38,
+      "truth": [
+        95.375,
+        3.227031864244968,
+        0.31432701271971497,
+        0.009951517842483274,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "holds": [
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 1.3690256390752609e-06
+    },
+    {
+      "goal": "P",
+      "duration": 3.0,
+      "max_translation": 0.00014339889327622283
+    },
+    {
+      "goal": "G",
+      "duration": 3.0,
+      "max_translation": 0.004503535834025163
+    },
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 0.001189885030685816
+    }
+  ],
+  "collision_frames": 27,
+  "obstacle_seen_in_costmap": false,
+  "plans": 0,
+  "amcl_position_rmse": 0.03584990314554363,
+  "amcl_yaw_rmse_deg": 1.123131111413203,
+  "topic_audit": {
+    "/sim/ground_truth": {
+      "publishers": [
+        "ros_gz_bridge"
+      ],
+      "subscribers": [
+        "autonomous_evidence"
+      ]
+    },
+    "/scan": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "amcl",
+        "rb3302_mission"
+      ]
+    },
+    "/odom/raw": {
+      "publishers": [
+        "sim_hardware"
+      ],
+      "subscribers": [
+        "ekf_filter_node"
+      ]
+    },
+    "/odom": {
+      "publishers": [
+        "ekf_filter_node"
+      ],
+      "subscribers": [
+        "rb3302_mission"
+      ]
+    },
+    "/amcl_pose": {
+      "publishers": [
+        "amcl"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "rb3302_mission"
+      ]
+    },
+    "/cmd_vel": {
+      "publishers": [
+        "rb3302_mission"
+      ],
+      "subscribers": [
+        "autonomous_evidence",
+        "sim_hardware"
+      ]
+    },
+    "/cmd_vel_nav": {
+      "publishers": [],
+      "subscribers": []
+    }
+  },
+  "passed": false,
+  "turns": []
+}

@@ -1,0 +1,15 @@
+{
+  "passed": false,
+  "completed": false,
+  "reason": "No evaluation result",
+  "case": {
+    "name": "03_blocked_C",
+    "start": "F",
+    "bearing": "W",
+    "goals": "F,A,P,F",
+    "env": {
+      "SIM_OBSTACLE": "C",
+      "SIM_OBSTACLE_SIZE": ".4"
+    }
+  }
+}

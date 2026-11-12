@@ -1,0 +1,1 @@
+Regression: two simultaneous visible clusters over24 scans yield one update, not alternating cells. Four fresh replacement-only scans update once. Actual blocked() with routeM,G,A: Nfalse,Mtrue,Sfalse. No hardware test.

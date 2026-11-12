@@ -1,0 +1,204 @@
+{
+  "completed": false,
+  "elapsed_sim_seconds": null,
+  "goals": [
+    {
+      "event": "GOAL X",
+      "time": 0.865,
+      "truth": [
+        0.85,
+        3.1900007076152668,
+        0.29,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 7.07615266826167e-07,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL P",
+      "time": 14.905,
+      "truth": [
+        14.892,
+        2.0261131493153433,
+        0.920813923717396,
+        -3.070509955353857,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 0.05096236309083554,
+      "centre_under_body": true
+    },
+    {
+      "event": "GOAL G",
+      "time": 127.356,
+      "truth": [
+        127.364,
+        0.2878609180190064,
+        1.4388621072961028,
+        -1.545395299534014,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 0.011341442836118253,
+      "centre_under_body": true
+    }
+  ],
+  "events": [
+    {
+      "event": "TARGET X",
+      "time": 0.864,
+      "truth": [
+        0.85,
+        3.1900007076152668,
+        0.29,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL X",
+      "time": 0.865,
+      "truth": [
+        0.85,
+        3.1900007076152668,
+        0.29,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 7.07615266826167e-07,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET P",
+      "time": 3.867,
+      "truth": [
+        3.876,
+        3.1900007076152668,
+        0.29,
+        1.5707963267949023,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL P",
+      "time": 14.905,
+      "truth": [
+        14.892,
+        2.0261131493153433,
+        0.920813923717396,
+        -3.070509955353857,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 0.05096236309083554,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET G",
+      "time": 17.897,
+      "truth": [
+        17.884,
+        2.0261129993562292,
+        0.9208139130459709,
+        -3.070509955353876,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "event": "GOAL G",
+      "time": 127.356,
+      "truth": [
+        127.364,
+        0.2878609180190064,
+        1.4388621072961028,
+        -1.545395299534014,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "true_goal_error": 0.011341442836118253,
+      "centre_under_body": true
+    },
+    {
+      "event": "TARGET X",
+      "time": 130.458,
+      "truth": [
+        130.458,
+        0.2878609233456791,
+        1.4388618976337362,
+        -1.5453952995340128,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "holds": [
+    {
+      "goal": "X",
+      "duration": 3.0,
+      "max_translation": 0.0
+    },
+    {
+      "goal": "P",
+      "duration": 3.0,
+      "max_translation": 1.503383357278467e-07
+    },
+    {
+      "goal": "G",
+      "duration": 3.0,
+      "max_translation": 2.0973002026848936e-07
+    }
+  ],
+  "collision_frames": 0,
+  "obstacle_seen_in_costmap": false,
+  "plans": 0,
+  "amcl_position_rmse": 0.02436726615481051,
+  "amcl_yaw_rmse_deg": 0.9715850018231793,
+  "topic_audit": {},
+  "passed": false,
+  "turns": [
+    {
+      "start": 6.771,
+      "requested_degrees": 90.0,
+      "end": 8.98,
+      "true_degrees": 81.03702725536003,
+      "error_degrees": -8.96297274463997
+    },
+    {
+      "start": 20.604,
+      "requested_degrees": -90.0,
+      "end": 22.77,
+      "true_degrees": -82.52535224649127,
+      "error_degrees": 7.474647753508734
+    },
+    {
+      "start": 71.375,
+      "requested_degrees": 90.0,
+      "end": 73.572,
+      "true_degrees": 81.35141280602568,
+      "error_degrees": -8.648587193974322
+    },
+    {
+      "start": 79.061,
+      "requested_degrees": 90.0,
+      "end": 81.261,
+      "true_degrees": 82.42011014448366,
+      "error_degrees": -7.579889855516341
+    }
+  ]
+}
